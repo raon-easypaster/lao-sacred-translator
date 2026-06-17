@@ -1,0 +1,110 @@
+[
+  {
+    "word_ko": "은혜",
+    "word_lo_common": "ຄວາມເມດຕາ",
+    "word_lo_religious": "ພຣະຄຸນ",
+    "word_lo_royal": "ພຣະມະຫາກະລຸນາທິຄຸນ",
+    "explanation_christian": "하나님의 조건 없는 호의와 사랑 (Unmerited favor). 인간의 행위나 공덕과 상관없이 거저 주시는 은총.",
+    "explanation_buddhist": "불교에는 신의 일방적 은혜 개념이 없음. 은혜(ພຣະຄຸນ)는 주로 부모, 스승, 왕에 대한 감사와 보답의 의무를 뜻함.",
+    "missionary_notes": "현지인들은 은혜를 부채 의식(갚아야 할 공덕)으로 받아들이기 쉽습니다. 설교 시 기독교의 은혜는 '아무 대가 없이 주어지는 선물'임을 명확히 강조해야 문화적 오해를 예방할 수 있습니다.",
+    "frequency": "High",
+    "source": "신학교 교재 1장",
+    "category": "Grace"
+  },
+  {
+    "word_ko": "구원",
+    "word_lo_common": "ການຊ່ວຍໃຫ້ພົ້ນ",
+    "word_lo_religious": "ຄວາມລອດ",
+    "word_lo_royal": "ການໂຜດຜ່າຍ",
+    "explanation_christian": "예수 그리스도의 대속을 통해 죄와 사망에서 건짐을 받고 영생에 이르는 것.",
+    "explanation_buddhist": "해탈(ການຫຼຸດພົ້ນ) 및 열반(ນິບພານ). 신의 구원이 아닌, 스스로의 수행과 깨달음을 통해 윤회와 고통에서 벗어나는 것.",
+    "missionary_notes": "현지어 'ຄວາມລອດ'(쾌물러드)는 물에 빠진 사람을 구하는 것과 같은 물리적 구조의 뉘앙스가 강합니다. 종교적 구원의 의미를 전달할 때는 예수님의 대속과 결부하여 설명해야 합니다.",
+    "frequency": "High",
+    "source": "기독교 신학 총론",
+    "category": "Salvation"
+  },
+  {
+    "word_ko": "죄",
+    "word_lo_common": "ຄວາມຜິດ",
+    "word_lo_religious": "ບາບ",
+    "word_lo_royal": "ພຣະອາຍາ",
+    "explanation_christian": "하나님의 법과 뜻을 거스르는 불순종 및 하나님과의 관계 단절.",
+    "explanation_buddhist": "바프(ບາບ)는 우주의 인과법칙(업)에 반하는 악행을 뜻하며, 그 자체가 부정적인 업(Karma)을 쌓아 내세에 고통을 유발하는 것.",
+    "missionary_notes": "라오스인에게 'ບາບ'(밥)은 관계적 죄라기보다 자율적인 인과율에 따른 행동의 오염입니다. 기독교의 죄는 관계적 성격(창조주 하나님에 대한 반역)임을 명확히 가르쳐야 합니다.",
+    "frequency": "High",
+    "source": "성경 기초 교리",
+    "category": "Sin"
+  },
+  {
+    "word_ko": "회개",
+    "word_lo_common": "ການກັບໃຈ",
+    "word_lo_religious": "ການກັບເນື້ອກັບຕົວ",
+    "word_lo_royal": "ການກັບຈິດພຣະໄທ",
+    "explanation_christian": "자신의 죄를 뉘우치고 방향을 바꾸어 하나님께로 돌이키는 전인격적 변화.",
+    "explanation_buddhist": "행동에 대한 반성과 계율 준수 서약. 도덕적 뉘우침.",
+    "missionary_notes": "'ການກັບໃຈ'(간깝짜이)는 마음을 바꾼다는 뜻으로, 기독교인들 사이에서 잘 정착된 표현입니다. 불교적 후회와 구분하여 행동과 내면의 완전한 돌이킴을 설명하십시오.",
+    "frequency": "High",
+    "source": "예배 모범집",
+    "category": "Repentance"
+  },
+  {
+    "word_ko": "거룩",
+    "word_lo_common": "ຄວາມບໍລິສຸດ",
+    "word_lo_religious": "ພຣະວິສຸດທິ",
+    "word_lo_royal": "ພຣະບໍລິສຸດທິຄຸນ",
+    "explanation_christian": "세상으로부터 구별되어 하나님께 속한 성결하고 흠 없는 상태.",
+    "explanation_buddhist": "세속의 번뇌와 탐욕에서 벗어난 깨끗하고 청정한 상태.",
+    "missionary_notes": "'ບໍລິສຸດ'(버리숫)은 일반적으로 순수함(pure)을 의미합니다. 하나님의 거룩하심을 표현할 때는 구별됨과 거룩한 속성을 나타내는 'ພຣະວິສຸດທິ'(프라วิ숫티)를 사용하는 것이 좋습니다.",
+    "frequency": "Medium",
+    "source": "성막 강의록",
+    "category": "Holiness"
+  },
+  {
+    "word_ko": "열반",
+    "word_lo_common": "ນິບພານ",
+    "word_lo_religious": "ພຣະນິບພານ",
+    "word_lo_royal": "ພຣະນิບພານ",
+    "explanation_christian": "기독교 개념에 대응하지 않음. 불교의 최고 경지.",
+    "explanation_buddhist": "모든 고통과 번뇌가 소멸하고 윤회의 굴레를 영원히 벗어난 절대 평온의 상태.",
+    "missionary_notes": "일부 현지인들이 기독교의 '천국'(ສະຫວັນ - 사완)과 불교의 '열반'을 혼동하곤 합니다. 천국은 하나님과 함께 영생을 누리는 관계적 실재이고, 열반은 자아와 고통이 소멸된 상태임을 대조하여 이해시켜야 합니다.",
+    "frequency": "Medium",
+    "source": "불교 경전 대조 연구",
+    "category": "Buddhist"
+  },
+  {
+    "word_ko": "공덕",
+    "word_lo_common": "ການເຮັດບຸນ",
+    "word_lo_religious": "ບຸນກຸສົນ",
+    "word_lo_royal": "ພຣະຣາຊກຸສົນ",
+    "explanation_christian": "행위적 공로는 구원에 아무런 영향을 미치지 못함.",
+    "explanation_buddhist": "공덕(ບຸນ - 분)을 쌓는 행위는 선업을 축적하여 내세의 복을 얻고 최종 해탈에 기여하는 불교 신앙생활의 중심.",
+    "missionary_notes": "라오스 사회는 공덕(보시, 사원 기부 등)을 쌓아 구원받는 사상이 지배적입니다. 복음 전파 시 공덕 축적과 하나님의 은혜를 비교하여 행위 구원의 한계를 설명해야 합니다.",
+    "frequency": "High",
+    "source": "라오스 문화 해설집",
+    "category": "Buddhist"
+  },
+  {
+    "word_ko": "업",
+    "word_lo_common": "ກໍາ",
+    "word_lo_religious": "ວິບາກກໍາ",
+    "word_lo_royal": "ພຣະກໍາ",
+    "explanation_christian": "인간은 심은 대로 거두나(갈 6:7), 그리스도의 십자가 대속으로 죄의 굴레에서 벗어날 수 있음.",
+    "explanation_buddhist": "원인과 결과의 우주적 법칙(Karma). 전생과 현생의 행위가 미래의 운명을 결정한다는 숙명론적 요소를 포함함.",
+    "missionary_notes": "라오스 기독교인들도 간혹 집안에 우환이 생기면 '업보' 탓으로 생각하여 낙담합니다. 예수님이 모든 저주를 끊으셨고 이제 새로운 피조물이 되었음을 심어주어야 합니다.",
+    "frequency": "High",
+    "source": "상황화 선교론",
+    "category": "Buddhist"
+  },
+  {
+    "word_ko": "하나님",
+    "word_lo_common": "ພຣະເຈົ້າ",
+    "word_lo_religious": "ພຣະຜູ້ເປັນເຈົ້າ",
+    "word_lo_royal": "ພຣະຜູ້ສ້າງສັບພະສິ່ງ",
+    "explanation_christian": "우주 만물을 창조하시고 다스리시는 유일하시고 인격적이신 분.",
+    "explanation_buddhist": "창조주 개념이 없음. 불교 우주론에는 여러 천신(Deva, ເທວະດາ)이 존재하나 창조주나 절대자가 아님.",
+    "missionary_notes": "'ພຣະເຈົ້າ'(프라짜오)는 주님, 신, 왕을 칭하는 접두사 ພຣະ(프라)와 주인 导入(짜오)가 결합된 용어입니다. 불교도들은 여러 신들 중 하나로 오해할 수 있으므로 '천지만물의 창조주'(ພຣະຜູ້ສ້າງສັບພະສິ່ງ)임을 분명히 설명하십시오.",
+    "frequency": "High",
+    "source": "성경 번역 표준 지침",
+    "category": "God"
+  }
+]

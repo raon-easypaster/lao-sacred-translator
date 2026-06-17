@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+
+# Databases and Local Storage
+backend/lslt_database.db
+backend/uploads/
+backend/exports/
+
+# Node / Frontend dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.tmp/
+frontend/tsconfig.app.tsbuildinfo
+
+# Logs and System Files
+*.log
+.DS_Store

@@ -1,0 +1,80 @@
+/* Design Tokens and Theme Variables for LSLT */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Color Palette */
+  --bg-primary: #080A10;      /* Midnight Blue base */
+  --bg-secondary: #0E121B;    /* Temple Dark Navy */
+  --bg-card: rgba(22, 28, 41, 0.65); /* Glassmorphic Card */
+  --bg-input: #121824;        /* Input backdrop */
+  
+  /* Accents */
+  --color-gold: #D4AF37;       /* Lao Temple Gold */
+  --color-gold-hover: #F3CD50; /* Bright gold for hover */
+  --color-gold-glow: rgba(212, 175, 55, 0.2);
+  --color-ruby: #C92A2A;       /* Warning Crimson */
+  --color-ruby-glow: rgba(201, 42, 42, 0.15);
+  
+  /* Text */
+  --text-primary: #F3F4F6;     /* White/Light Gray */
+  --text-secondary: #9CA3AF;   /* Muted gray */
+  --text-gold: #E5C158;        /* Gold text */
+  --text-ruby: #FFA8A8;        /* Soft red */
+  
+  /* Borders */
+  --border-indigo: rgba(55, 65, 81, 0.4);
+  --border-gold: rgba(212, 175, 55, 0.3);
+  --border-gold-focus: rgba(212, 175, 55, 0.8);
+  
+  /* Glassmorphism & Shadows */
+  --glass-blur: blur(12px);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 0 15px rgba(212, 175, 55, 0.25);
+  --shadow-ruby: 0 0 15px rgba(201, 42, 42, 0.25);
+  
+  /* Fonts */
+  --font-main: 'Inter', sans-serif;
+  --font-title: 'Outfit', sans-serif;
+  --font-lao: 'Noto Sans Lao', sans-serif;
+  
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 70px;
+}
+
+/* Base resets & scrollbars */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-indigo);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
