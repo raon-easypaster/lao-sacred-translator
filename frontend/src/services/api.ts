@@ -4,7 +4,8 @@ import type {
   TranslationHistoryItem, 
   DocumentItem, 
   BibleVerseItem, 
-  SearchResultItem 
+  SearchResultItem,
+  SermonReviewItem
 } from '../types';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
@@ -203,5 +204,48 @@ export const api = {
     });
     if (!response.ok) throw new Error('Export failed');
     return response.blob();
+  },
+
+  // Sermon Review
+  async getSermons(): Promise<SermonReviewItem[]> {
+    const response = await fetch(`${API_BASE_URL}/api/sermons`);
+    if (!response.ok) throw new Error('Failed to fetch sermons');
+    return response.json();
+  },
+
+  async saveSermon(sermon: SermonReviewItem): Promise<SermonReviewItem> {
+    const response = await fetch(`${API_BASE_URL}/api/sermons`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sermon),
+    });
+    if (!response.ok) throw new Error('Failed to save sermon');
+    return response.json();
+  },
+
+  async updateSermon(
+    id: number,
+    sermon: Partial<SermonReviewItem> & { reviewer_name?: string }
+  ): Promise<SermonReviewItem> {
+    const response = await fetch(`${API_BASE_URL}/api/sermons/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sermon),
+    });
+    if (!response.ok) throw new Error('Failed to update sermon');
+    return response.json();
+  },
+
+  async deleteSermon(id: number): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/sermons/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete sermon');
+    return response.json();
   }
 };
+

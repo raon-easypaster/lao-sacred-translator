@@ -88,3 +88,26 @@ export interface SearchResultItem {
   content: string;
   score: number;
 }
+
+export interface SermonReviewItem {
+  id?: number;
+  title: string;
+  source_text: string;
+  trans_literal: string;
+  trans_preaching: string;
+  trans_contextual: string;
+  trans_smallgroup: string;
+  reviewer_stage: 'ai' | 'local_reviewer' | 'missionary_reviewer' | 'approved';
+  reviewer_notes?: string;
+  approved: boolean;
+  timestamp?: string;
+  history_json?: string;
+}
+
+export interface SermonHistoryLog {
+  timestamp: string;
+  reviewer: string;
+  changes: string;
+  notes: string;
+}
+

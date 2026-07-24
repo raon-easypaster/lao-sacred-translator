@@ -81,3 +81,20 @@ class DocumentChunk(Base):
     chunk_index = Column(Integer, nullable=False)
     content = Column(Text, nullable=False)
     vector_json = Column(Text, nullable=True) # JSON representation of the embedding array if local
+
+class SermonReview(Base):
+    __tablename__ = "sermon_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False, default="Untitled Sermon")
+    source_text = Column(Text, nullable=False)
+    trans_literal = Column(Text, nullable=True)
+    trans_preaching = Column(Text, nullable=True)
+    trans_contextual = Column(Text, nullable=True)
+    trans_smallgroup = Column(Text, nullable=True)
+    reviewer_stage = Column(String, default="ai")  # ai, local_reviewer, missionary_reviewer, approved
+    reviewer_notes = Column(Text, nullable=True)
+    approved = Column(Boolean, default=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    history_json = Column(Text, nullable=True)  # Version log: [{"timestamp": "...", "reviewer": "...", "notes": "..."}]
+

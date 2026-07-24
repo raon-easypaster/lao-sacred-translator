@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from app.core.config import settings
 from app.core.database import get_db, engine, Base
-from app.models.schemas import Glossary, TranslationHistory, Document, DocumentChunk, TranslationMemory, BibleVerse
+from app.models.schemas import Glossary, TranslationHistory, Document, DocumentChunk, TranslationMemory, BibleVerse, SermonReview
 from app.services.document_parser import DocumentParser
 from app.services.rag_engine import RAGEngine
 from app.services.translation_engine import TranslationEngine
@@ -131,6 +131,26 @@ class SettingsUpdateRequest(BaseModel):
     api_key: str
     embedding_provider: str
 
+class SermonReviewCreate(BaseModel):
+    title: str
+    source_text: str
+    trans_literal: Optional[str] = None
+    trans_preaching: Optional[str] = None
+    trans_contextual: Optional[str] = None
+    trans_smallgroup: Optional[str] = None
+
+class SermonReviewUpdate(BaseModel):
+    title: Optional[str] = None
+    trans_literal: Optional[str] = None
+    trans_preaching: Optional[str] = None
+    trans_contextual: Optional[str] = None
+    trans_smallgroup: Optional[str] = None
+    reviewer_stage: Optional[str] = None
+    reviewer_notes: Optional[str] = None
+    approved: Optional[bool] = None
+    reviewer_name: Optional[str] = None
+
+
 # --- API Endpoints ---
 
 @app.get("/")
@@ -226,7 +246,97 @@ def delete_history_item(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "History item deleted successfully."}
 
+# --- Sermon Review Endpoints ---
+@app.get("/api/sermons")
+def get_sermons(db: Session = Depends(get_db)):
+    return db.query(SermonReview).order_by(SermonReview.timestamp.desc()).all()
+
+@app.post("/api/sermons")
+def create_sermon(req: SermonReviewCreate, db: Session = Depends(get_db)):
+    db_sermon = SermonReview(
+        title=req.title,
+        source_text=req.source_text,
+        trans_literal=req.trans_literal,
+        trans_preaching=req.trans_preaching,
+        trans_contextual=req.trans_contextual,
+        trans_smallgroup=req.trans_smallgroup,
+        reviewer_stage="ai",
+        approved=False
+    )
+    db.add(db_sermon)
+    db.commit()
+    db.refresh(db_sermon)
+    return db_sermon
+
+@app.put("/api/sermons/{id}")
+def update_sermon(id: int, req: SermonReviewUpdate, db: Session = Depends(get_db)):
+    sermon = db.query(SermonReview).filter(SermonReview.id == id).first()
+    if not sermon:
+        raise HTTPException(status_code=404, detail="Sermon project not found.")
+
+    # Record history if translations changed or stages changed
+    history = []
+    if sermon.history_json:
+        try:
+            history = json.loads(sermon.history_json)
+        except Exception:
+            history = []
+
+    change_desc = []
+    if req.title is not None and req.title != sermon.title:
+        change_desc.append(f"Title changed from '{sermon.title}' to '{req.title}'")
+        sermon.title = req.title
+
+    if req.trans_literal is not None and req.trans_literal != sermon.trans_literal:
+        change_desc.append("Literal translation updated")
+        sermon.trans_literal = req.trans_literal
+
+    if req.trans_preaching is not None and req.trans_preaching != sermon.trans_preaching:
+        change_desc.append("Preaching translation updated")
+        sermon.trans_preaching = req.trans_preaching
+
+    if req.trans_contextual is not None and req.trans_contextual != sermon.trans_contextual:
+        change_desc.append("Contextual translation updated")
+        sermon.trans_contextual = req.trans_contextual
+
+    if req.trans_smallgroup is not None and req.trans_smallgroup != sermon.trans_smallgroup:
+        change_desc.append("Small-group translation updated")
+        sermon.trans_smallgroup = req.trans_smallgroup
+
+    if req.reviewer_stage is not None and req.reviewer_stage != sermon.reviewer_stage:
+        change_desc.append(f"Stage changed from '{sermon.reviewer_stage}' to '{req.reviewer_stage}'")
+        sermon.reviewer_stage = req.reviewer_stage
+
+    if req.approved is not None:
+        sermon.approved = req.approved
+
+    if req.reviewer_notes is not None:
+        sermon.reviewer_notes = req.reviewer_notes
+
+    if change_desc:
+        history.append({
+            "timestamp": datetime.utcnow().isoformat(),
+            "reviewer": req.reviewer_name or "System",
+            "changes": ", ".join(change_desc),
+            "notes": req.reviewer_notes or ""
+        })
+        sermon.history_json = json.dumps(history)
+
+    db.commit()
+    db.refresh(sermon)
+    return sermon
+
+@app.delete("/api/sermons/{id}")
+def delete_sermon(id: int, db: Session = Depends(get_db)):
+    sermon = db.query(SermonReview).filter(SermonReview.id == id).first()
+    if not sermon:
+        raise HTTPException(status_code=404, detail="Sermon project not found.")
+    db.delete(sermon)
+    db.commit()
+    return {"message": "Sermon review project deleted successfully."}
+
 # --- Glossary API ---
+
 @app.get("/api/glossary")
 def get_glossary(search: Optional[str] = None, category: Optional[str] = None, db: Session = Depends(get_db)):
     query = db.query(Glossary)
