@@ -1,0 +1,13 @@
+{
+  "name": "lslt-desktop",
+  "version": "1.0.0",
+  "description": "Lao Sacred Language Translator Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^30.0.1"
+  }
+}
