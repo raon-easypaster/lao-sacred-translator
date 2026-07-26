@@ -94,7 +94,8 @@ class TranslationEngine:
 
     @staticmethod
     def _translate_gemini(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={key}"
+        # Use gemini-1.5-flash which is generally available and stable
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
         headers = {"Content-Type": "application/json"}
         
         prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
@@ -110,10 +111,14 @@ class TranslationEngine:
                 result = response.json()
                 content = result["candidates"][0]["content"]["parts"][0]["text"]
                 return json.loads(content)
+            else:
+                err_msg = f"Gemini API Error (status {response.status_code}): {response.text}"
+                print(err_msg)
+                return {"error": err_msg, "translation": text}
         except Exception as e:
-            pass
-            
-        return {"error": "Gemini API call failed", "translation": text}
+            err_msg = f"Gemini API Exception: {str(e)}"
+            print(err_msg)
+            return {"error": err_msg, "translation": text}
 
     @staticmethod
     def _translate_openai(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
@@ -139,10 +144,14 @@ class TranslationEngine:
             if response.status_code == 200:
                 content = response.json()["choices"][0]["message"]["content"]
                 return json.loads(content)
-        except Exception:
-            pass
-            
-        return {"error": "OpenAI API call failed", "translation": text}
+            else:
+                err_msg = f"OpenAI API Error (status {response.status_code}): {response.text}"
+                print(err_msg)
+                return {"error": err_msg, "translation": text}
+        except Exception as e:
+            err_msg = f"OpenAI API Exception: {str(e)}"
+            print(err_msg)
+            return {"error": err_msg, "translation": text}
 
     @staticmethod
     def _translate_claude(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
@@ -168,14 +177,18 @@ class TranslationEngine:
             response = requests.post(url, headers=headers, json=payload, timeout=20)
             if response.status_code == 200:
                 content = response.json()["content"][0]["text"]
-                # Claude might wrap in markdown codeblocks
                 if "```json" in content:
                     content = content.split("```json")[1].split("```")[0].strip()
                 return json.loads(content)
-        except Exception:
-            pass
-            
-        return {"error": "Claude API call failed", "translation": text}
+            else:
+                err_msg = f"Claude API Error (status {response.status_code}): {response.text}"
+                print(err_msg)
+                return {"error": err_msg, "translation": text}
+        except Exception as e:
+            err_msg = f"Claude API Exception: {str(e)}"
+            print(err_msg)
+            return {"error": err_msg, "translation": text}
+
 
     @staticmethod
     def _build_system_prompt(text: str, direction: str, mode: str, glossary: str, rag: str) -> str:

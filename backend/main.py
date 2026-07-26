@@ -173,6 +173,9 @@ def translate_text(req: TranslationRequest, db: Session = Depends(get_db)):
             api_key=req.api_key
         )
         
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        
         # 2. Add to translation history in background
         history_item = TranslationHistory(
             source_text=req.text,
