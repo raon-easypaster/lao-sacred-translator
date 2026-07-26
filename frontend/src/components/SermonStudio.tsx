@@ -38,6 +38,38 @@ export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider }) 
   // Toggle register viewing in Review panel
   const [activeReviewRegister, setActiveReviewRegister] = useState<'preaching' | 'contextual' | 'literal' | 'smallgroup'>('preaching');
 
+  const [isFileTranslating, setIsFileTranslating] = useState(false);
+
+  const handleTranslateFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!apiKey) {
+      alert('오프라인 번역 사전 모드에서는 전체 문서 일괄 번역이 지원되지 않습니다. 설정에서 AI API 키를 입력해 주세요.');
+      e.target.value = '';
+      return;
+    }
+
+    setIsFileTranslating(true);
+    try {
+      const blob = await api.translateDocument(file, direction, provider, apiKey);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LSLT_Sermon_Translation_${file.name.replace(/\.[^/.]+$/, "")}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      alert('문서 전체 번역 보고서 생성이 완료되었습니다. 마크다운(.md) 보고서 파일이 다운로드되었습니다.');
+    } catch (err: any) {
+      alert(`문서 일괄 번역 실패: ${err.message}`);
+    } finally {
+      setIsFileTranslating(false);
+      e.target.value = '';
+    }
+  };
+
   const loadSermonList = async () => {
     setIsLoadingSermons(true);
     try {
@@ -236,6 +268,17 @@ export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider }) 
                   <option value="ko_to_lo_religious">한국어 → 라오어 종교체</option>
                   <option value="lo_religious_to_ko">라오어 종교체 → 한국어</option>
                 </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', padding: '8px 12px', background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-indigo)', borderRadius: '6px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>📄 파일 일괄 번역:</span>
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.txt,.md"
+                  onChange={handleTranslateFile}
+                  disabled={isFileTranslating || isLoading}
+                  style={{ fontSize: '0.8rem' }}
+                />
+                {isFileTranslating && <span style={{ color: 'var(--text-gold)', fontSize: '0.75rem', fontWeight: 700 }}>⚡ 전체 번역 진행 중...</span>}
               </div>
               <textarea
                 className="textarea-text"

@@ -494,6 +494,120 @@ def search_knowledge_base(query: str, top_k: int = 5, db: Session = Depends(get_
     results = RAGEngine.search(db, query, top_k=top_k)
     return results
 
+@app.post("/api/translate/document")
+async def translate_entire_document(
+    file: UploadFile = File(...),
+    direction: str = Form("ko_to_lo_religious"),
+    provider: Optional[str] = Form(None),
+    api_key: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    try:
+        # 1. Save temp file
+        file_ext = os.path.splitext(file.filename)[1]
+        unique_filename = f"trans_{uuid.uuid4()}{file_ext}"
+        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+        
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # 2. Parse text from document
+        extracted_text = DocumentParser.parse_file(file_path, file_ext)
+        if not extracted_text.strip():
+            raise HTTPException(status_code=400, detail="Document appears to be empty or cannot be parsed.")
+            
+        # 3. Chunk text into logical paragraphs (using double newline)
+        paragraphs = [p.strip() for p in extracted_text.split("\n\n") if p.strip()]
+        if not paragraphs:
+            # Fallback to single newline split if no double newlines
+            paragraphs = [p.strip() for p in extracted_text.split("\n") if p.strip()]
+            
+        # Limit to first 30 paragraphs to keep it safe for token rates and time limits
+        max_paragraphs = 30
+        paragraphs = paragraphs[:max_paragraphs]
+        
+        translated_results = []
+        for p in paragraphs:
+            try:
+                res = TranslationEngine.translate(
+                    db=db,
+                    text=p,
+                    direction=direction,
+                    mode="sermon",
+                    provider=provider,
+                    api_key=api_key
+                )
+                if "error" in res:
+                    translated_results.append({
+                        "source": p,
+                        "error": res["error"],
+                        "translation": "번역 실패 (AI 오류)",
+                        "literal": p,
+                        "preaching": p,
+                        "contextual": p
+                    })
+                else:
+                    translated_results.append({
+                        "source": p,
+                        "translation": res.get("translation", ""),
+                        "literal": res.get("literal", ""),
+                        "preaching": res.get("preaching", ""),
+                        "contextual": res.get("contextual", ""),
+                        "cultural_warning": res.get("cultural_warning", ""),
+                        "commentary": res.get("commentary", "")
+                    })
+            except Exception as e:
+                translated_results.append({
+                    "source": p,
+                    "error": str(e),
+                    "translation": "번역 실패 (예외 발생)",
+                    "literal": p,
+                    "preaching": p,
+                    "contextual": p
+                })
+                
+        # 4. Compile Markdown Report
+        report_md = f"# LSLT 설교문 전문 상황화 번역 보고서\n\n"
+        report_md += f"- **원본 파일명**: {file.filename}\n"
+        report_md += f"- **번역 방향**: {direction}\n"
+        report_md += f"- **생성 일시**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        report_md += "---\n\n"
+        
+        for idx, item in enumerate(translated_results):
+            report_md += f"## 단락 {idx + 1}\n\n"
+            report_md += f"### 📝 원본 텍스트\n{item['source']}\n\n"
+            report_md += f"### A. 직역본 (성경 구체)\n{item.get('literal', '')}\n\n"
+            report_md += f"### B. 설교용 번역본 (장중한 경어체/종교체)\n{item.get('preaching', '')}\n\n"
+            report_md += f"### C. 현지인 친화형 번역본 (불교 청중 상황화)\n{item.get('contextual', '')}\n\n"
+            report_md += f"### D. 소그룹 및 구어 대화형\n{item.get('translation', '')}\n\n"
+            
+            if item.get('cultural_warning'):
+                report_md += f"> ⚠️ **문화/종교적 충돌 분석**: {item['cultural_warning']}\n\n"
+            if item.get('commentary'):
+                report_md += f"> 💡 **신학적/어휘 설명**: {item['commentary']}\n\n"
+            if item.get('error'):
+                report_md += f"> ❌ **번역 에러 로그**: {item['error']}\n\n"
+            report_md += "---\n\n"
+            
+        # Write to exports directory
+        out_filename = f"LSLT_Sermon_Translation_{uuid.uuid4().hex[:8]}.md"
+        out_filepath = os.path.join(EXPORT_DIR, out_filename)
+        with open(out_filepath, "w", encoding="utf-8") as f:
+            f.write(report_md)
+            
+        return FileResponse(out_filepath, media_type="text/markdown", filename=out_filename)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Document translation failed: {str(e)}")
+        
+    finally:
+        # Cleanup uploaded temp file
+        if 'file_path' in locals() and os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+
 # --- Export Endpoint ---
 @app.post("/api/export")
 def export_translation(data: dict, format: str = Query("markdown")):

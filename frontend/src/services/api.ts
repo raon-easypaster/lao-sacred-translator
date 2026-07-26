@@ -246,6 +246,29 @@ export const api = {
     });
     if (!response.ok) throw new Error('Failed to delete sermon');
     return response.json();
+  },
+
+  async translateDocument(
+    file: File,
+    direction: string,
+    provider: string,
+    apiKey: string
+  ): Promise<Blob> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('direction', direction);
+    formData.append('provider', provider);
+    formData.append('api_key', apiKey);
+
+    const response = await fetch(`${API_BASE_URL}/api/translate/document`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Document translation failed');
+    }
+    return response.blob();
   }
 };
 
