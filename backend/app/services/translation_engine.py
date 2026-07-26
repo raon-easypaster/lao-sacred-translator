@@ -35,7 +35,8 @@ class TranslationEngine:
         direction: str,
         mode: str = "standard",
         provider: str = None,
-        api_key: str = None
+        api_key: str = None,
+        model: str = None
     ) -> dict:
         """Translates the text using custom glossary injection, RAG, and an LLM."""
         provider = provider or settings.DEFAULT_LLM_PROVIDER
@@ -76,26 +77,31 @@ class TranslationEngine:
             rag_context = "참고용 배경 문헌 자료 (RAG):\n"
             for doc in rag_results:
                 rag_context += f"- 출처 [{doc['document_name']}]: \"{doc['content']}\"\n"
-
+ 
         # If no API Key is available, use heuristic rule-based translation
         if not key:
             return TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
-
+ 
         # 3. Choose provider and run translation
         if provider == "gemini":
-            return TranslationEngine._translate_gemini(text, direction, mode, glossary_context, rag_context, key)
+            return TranslationEngine._translate_gemini(text, direction, mode, glossary_context, rag_context, key, model)
         elif provider == "openai":
-            return TranslationEngine._translate_openai(text, direction, mode, glossary_context, rag_context, key)
+            return TranslationEngine._translate_openai(text, direction, mode, glossary_context, rag_context, key, model)
         elif provider == "claude":
-            return TranslationEngine._translate_claude(text, direction, mode, glossary_context, rag_context, key)
+            return TranslationEngine._translate_claude(text, direction, mode, glossary_context, rag_context, key, model)
             
         return TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
-
-
+ 
+ 
     @staticmethod
-    def _translate_gemini(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
-        # Use gemini-1.5-flash which is generally available and stable
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+    def _translate_gemini(text: str, direction: str, mode: str, glossary: str, rag: str, key: str, model: str = None) -> dict:
+        # Use gemini-3.6-flash as default, which is the 2026 GA stable model
+        model_name = model or "gemini-3.6-flash"
+        if model_name.startswith("models/"):
+            model_name = model_name[7:]
+            
+        # Call Google GenAI stable v1 API instead of v1beta
+        url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={key}"
         headers = {"Content-Type": "application/json"}
         
         prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
@@ -119,9 +125,9 @@ class TranslationEngine:
             err_msg = f"Gemini API Exception: {str(e)}"
             print(err_msg)
             return {"error": err_msg, "translation": text}
-
+ 
     @staticmethod
-    def _translate_openai(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
+    def _translate_openai(text: str, direction: str, mode: str, glossary: str, rag: str, key: str, model: str = None) -> dict:
         url = "https://api.openai.com/v1/chat/completions"
         headers = {
             "Content-Type": "application/json",
@@ -131,7 +137,7 @@ class TranslationEngine:
         prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
         
         payload = {
-            "model": "gpt-4o-mini",
+            "model": model or "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": "You are a professional Lao religious translator, theologian, and linguist. You must return only JSON."},
                 {"role": "user", "content": prompt}
@@ -152,9 +158,9 @@ class TranslationEngine:
             err_msg = f"OpenAI API Exception: {str(e)}"
             print(err_msg)
             return {"error": err_msg, "translation": text}
-
+ 
     @staticmethod
-    def _translate_claude(text: str, direction: str, mode: str, glossary: str, rag: str, key: str) -> dict:
+    def _translate_claude(text: str, direction: str, mode: str, glossary: str, rag: str, key: str, model: str = None) -> dict:
         url = "https://api.anthropic.com/v1/messages"
         headers = {
             "Content-Type": "application/json",
@@ -165,7 +171,7 @@ class TranslationEngine:
         prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
         
         payload = {
-            "model": "claude-3-5-haiku-20241022",
+            "model": model or "claude-3-5-haiku-20241022",
             "max_tokens": 2048,
             "system": "You are a professional Lao religious translator, theologian, and linguist. Return a JSON object ONLY.",
             "messages": [

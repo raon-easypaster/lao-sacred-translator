@@ -15,6 +15,7 @@ export const App: React.FC = () => {
   const [provider, setProvider] = useState(() => localStorage.getItem('lslt_provider') || 'gemini');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('lslt_api_key') || '');
   const [embeddingProvider, setEmbeddingProvider] = useState(() => localStorage.getItem('lslt_embedding_provider') || 'local');
+  const [geminiModel, setGeminiModel] = useState(() => localStorage.getItem('lslt_gemini_model') || 'gemini-3.6-flash');
 
   useEffect(() => {
     localStorage.setItem('lslt_provider', provider);
@@ -27,6 +28,10 @@ export const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('lslt_embedding_provider', embeddingProvider);
   }, [embeddingProvider]);
+
+  useEffect(() => {
+    localStorage.setItem('lslt_gemini_model', geminiModel);
+  }, [geminiModel]);
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,11 +83,11 @@ export const App: React.FC = () => {
           )}
 
           {currentView === 'translate' && (
-            <TranslationWorkspace apiKey={apiKey} provider={provider} />
+            <TranslationWorkspace apiKey={apiKey} provider={provider} geminiModel={geminiModel} />
           )}
 
           {currentView === 'sermon' && (
-            <SermonStudio apiKey={apiKey} provider={provider} />
+            <SermonStudio apiKey={apiKey} provider={provider} geminiModel={geminiModel} />
           )}
 
           {currentView === 'bible' && (
@@ -121,6 +126,22 @@ export const App: React.FC = () => {
                       <option value="claude">Anthropic Claude</option>
                     </select>
                   </div>
+
+                  {provider === 'gemini' && (
+                    <div>
+                      <label className="text-muted" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '6px', fontWeight: 600 }}>Gemini 모델명</label>
+                      <input
+                        type="text"
+                        className="input-text"
+                        placeholder="예: gemini-3.6-flash"
+                        value={geminiModel}
+                        onChange={(e) => setGeminiModel(e.target.value)}
+                      />
+                      <span className="text-muted" style={{ fontSize: '0.75rem', marginTop: '4px', display: 'block' }}>
+                        * Google AI Studio의 활성화된 모델명을 입력하십시오. (기본값: gemini-3.6-flash)
+                      </span>
+                    </div>
+                  )}
 
                   <div>
                     <label className="text-muted" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '6px', fontWeight: 600 }}>API 인증 키 (API Key)</label>

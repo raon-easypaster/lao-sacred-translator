@@ -17,7 +17,8 @@ export const api = {
     direction: string,
     mode: string = 'standard',
     provider?: string,
-    apiKey?: string
+    apiKey?: string,
+    model?: string
   ): Promise<TranslationResult> {
     const response = await fetch(`${API_BASE_URL}/api/translate`, {
       method: 'POST',
@@ -30,6 +31,7 @@ export const api = {
         mode,
         provider: provider || null,
         api_key: apiKey || null,
+        model: model || null,
       }),
     });
     if (!response.ok) {
@@ -252,13 +254,15 @@ export const api = {
     file: File,
     direction: string,
     provider: string,
-    apiKey: string
+    apiKey: string,
+    model?: string
   ): Promise<Blob> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('direction', direction);
     formData.append('provider', provider);
     formData.append('api_key', apiKey);
+    if (model) formData.append('model', model);
 
     const response = await fetch(`${API_BASE_URL}/api/translate/document`, {
       method: 'POST',

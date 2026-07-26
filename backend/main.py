@@ -107,6 +107,7 @@ class TranslationRequest(BaseModel):
     mode: str = "standard"
     provider: Optional[str] = None
     api_key: Optional[str] = None
+    model: Optional[str] = None
 
 class GlossarySchema(BaseModel):
     word_ko: str
@@ -170,7 +171,8 @@ def translate_text(req: TranslationRequest, db: Session = Depends(get_db)):
             direction=req.direction,
             mode=req.mode,
             provider=req.provider,
-            api_key=req.api_key
+            api_key=req.api_key,
+            model=req.model
         )
         
         if "error" in result:
@@ -500,6 +502,7 @@ async def translate_entire_document(
     direction: str = Form("ko_to_lo_religious"),
     provider: Optional[str] = Form(None),
     api_key: Optional[str] = Form(None),
+    model: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     try:
@@ -531,7 +534,8 @@ async def translate_entire_document(
                     direction=direction,
                     mode="sermon",
                     provider=provider,
-                    api_key=api_key
+                    api_key=api_key,
+                    model=model
                 )
                 if "error" in res:
                     translated_results.append({

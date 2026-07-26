@@ -5,9 +5,10 @@ import type { TranslationResult, SermonReviewItem, SermonHistoryLog } from '../t
 interface SermonStudioProps {
   apiKey: string;
   provider: string;
+  geminiModel: string;
 }
 
-export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider }) => {
+export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider, geminiModel }) => {
   // Mode toggle: 'translate' or 'review'
   const [activeTab, setActiveTab] = useState<'translate' | 'review'>('translate');
 
@@ -52,7 +53,7 @@ export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider }) 
 
     setIsFileTranslating(true);
     try {
-      const blob = await api.translateDocument(file, direction, provider, apiKey);
+      const blob = await api.translateDocument(file, direction, provider, apiKey, provider === 'gemini' ? geminiModel : undefined);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -92,7 +93,7 @@ export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider }) 
     if (!sermonText.trim()) return;
     setIsLoading(true);
     try {
-      const transResult = await api.translate(sermonText, direction, 'sermon', provider, apiKey);
+      const transResult = await api.translate(sermonText, direction, 'sermon', provider, apiKey, provider === 'gemini' ? geminiModel : undefined);
       setResult(transResult);
     } catch (err: any) {
       alert(`설교 번역 실패: ${err.message}`);

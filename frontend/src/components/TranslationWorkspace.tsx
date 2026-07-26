@@ -5,9 +5,10 @@ import type { TranslationResult } from '../types';
 interface TranslationWorkspaceProps {
   apiKey: string;
   provider: string;
+  geminiModel: string;
 }
 
-export const TranslationWorkspace: React.FC<TranslationWorkspaceProps> = ({ apiKey, provider }) => {
+export const TranslationWorkspace: React.FC<TranslationWorkspaceProps> = ({ apiKey, provider, geminiModel }) => {
   const [sourceText, setSourceText] = useState('');
   const [direction, setDirection] = useState('ko_to_lo_religious');
   const [mode, setMode] = useState('missionary'); // default to missionary mode as requested
@@ -20,7 +21,7 @@ export const TranslationWorkspace: React.FC<TranslationWorkspaceProps> = ({ apiK
     if (!sourceText.trim()) return;
     setIsLoading(true);
     try {
-      const transResult = await api.translate(sourceText, direction, mode, provider, apiKey);
+      const transResult = await api.translate(sourceText, direction, mode, provider, apiKey, provider === 'gemini' ? geminiModel : undefined);
       setResult(transResult);
     } catch (err: any) {
       alert(`번역 오류: ${err.message}`);
