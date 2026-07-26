@@ -521,10 +521,6 @@ async def translate_entire_document(
         if not paragraphs:
             # Fallback to single newline split if no double newlines
             paragraphs = [p.strip() for p in extracted_text.split("\n") if p.strip()]
-            
-        # Limit to first 30 paragraphs to keep it safe for token rates and time limits
-        max_paragraphs = 30
-        paragraphs = paragraphs[:max_paragraphs]
         
         translated_results = []
         for p in paragraphs:
