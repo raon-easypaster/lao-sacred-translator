@@ -207,6 +207,8 @@ class TranslationEngine:
             "- 태국어(Thai language) 어휘, 태국식 어투, 태국어 자모(Unicode block U+0E00 ~ U+0E7F)가 번역 결과에 절대 섞이지 않게 하십시오. \n"
             "- 태국식 조사(ครับ, ค่ะ 등) 및 태국식 감사 표현(ขอบคุณ) 등 모든 태국어 요소를 전면 배제해야 합니다. \n"
             "- 오직 표준 라오스어 자모(Unicode block U+0E80 ~ U+0EFF)와 순수 라오스어 어휘(예: ขอบใจ 등)만을 사용하여 철저히 라오스어로만 번역해 주세요.\n\n"
+            "[BIBLE REFERENCE AUTHORITY: laobible.net]\n"
+            "- 번역 시 기독교 신학 용어 및 성경 구절 인용은 laobible.net(Lao Bible Popular 2015 Version 및 Spoken Lao NT)에 기재된 라오어 성경의 공식 정서법 및 어휘 선택을 최우선적으로 참조하여 번역을 구성하십시오. 임의의 라오어 조합보다 실제 현지 공식 성경 표현을 존중해야 합니다.\n\n"
             f"번역 방향: {direction}\n"
             f"선교 모드/컨텍스트: {mode}\n\n"
             f"번역할 원문:\n\"\"\"\n{text}\n\"\"\"\n\n"

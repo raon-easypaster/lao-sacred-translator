@@ -234,6 +234,10 @@ export const SermonStudio: React.FC<SermonStudioProps> = ({ apiKey, provider, ge
         <div>
           <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '2rem', fontWeight: 800 }}>설교문 스튜디오 (Sermon Studio)</h2>
           <p className="text-muted">설교문 단락을 분석하고 다중 문체 상황화 번역 및 다단계 검수 워크플로우를 진행합니다.</p>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-gold)', fontWeight: 600 }}>📚 참조 레퍼런스 공식 권위처</span>
+            <a href="https://laobible.net/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--text-link)', textDecoration: 'underline', fontWeight: 600 }}>laobible.net (라오 성경 온라인) 바로가기 ↗</a>
+          </div>
         </div>
         
         {/* Navigation Tabs */}

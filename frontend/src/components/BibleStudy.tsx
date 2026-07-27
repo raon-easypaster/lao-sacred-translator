@@ -64,6 +64,10 @@ export const BibleStudy: React.FC = () => {
         <div>
           <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '2rem', fontWeight: 800 }}>성경 본문 연구 모드</h2>
           <p className="text-muted">다양한 라오어 문체(일반/종교/왕실) 구절 대조 및 주해 분석 시스템</p>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-gold)', fontWeight: 600 }}>📚 참조 레퍼런스 공식 권위처</span>
+            <a href="https://laobible.net/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--text-link)', textDecoration: 'underline', fontWeight: 600 }}>laobible.net (라오 성경 온라인) 바로가기 ↗</a>
+          </div>
         </div>
         <button
           className="btn"
