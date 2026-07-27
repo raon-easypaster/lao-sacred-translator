@@ -58,6 +58,23 @@ export const BibleStudy: React.FC = () => {
     a.remove();
   };
 
+  const handleExportBibleJson = async () => {
+    try {
+      const blob = await api.exportBibleJson();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LSLT_Lao_Bible_Database.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      alert('성경 데이터베이스가 JSON 파일로 내보내기 되었습니다.');
+    } catch (err: any) {
+      alert(`성경 JSON 내보내기 실패: ${err.message}`);
+    }
+  };
+
   return (
     <div className="workspace">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
@@ -69,13 +86,22 @@ export const BibleStudy: React.FC = () => {
             <a href="https://laobible.net/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--text-link)', textDecoration: 'underline', fontWeight: 600 }}>laobible.net (라오 성경 온라인) 바로가기 ↗</a>
           </div>
         </div>
-        <button
-          className="btn"
-          onClick={handleExportBibleStudy}
-          disabled={verses.length === 0}
-        >
-          📖 연구 보고서 출력 (Markdown)
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            className="btn"
+            onClick={handleExportBibleStudy}
+            disabled={verses.length === 0}
+          >
+            📖 연구 보고서 출력 (Markdown)
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleExportBibleJson}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            📥 성경 DB JSON 백업
+          </button>
+        </div>
       </div>
 
       {/* Selectors Panel */}

@@ -273,6 +273,12 @@ export const api = {
       throw new Error(err.detail || 'Document translation failed');
     }
     return response.blob();
+  },
+
+  async exportBibleJson(): Promise<Blob> {
+    const response = await fetch(`${API_BASE_URL}/api/bible/export`);
+    if (!response.ok) throw new Error('Failed to export Bible JSON');
+    return response.blob();
   }
 };
 

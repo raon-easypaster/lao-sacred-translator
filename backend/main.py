@@ -488,6 +488,30 @@ def get_bible_verses(book: Optional[str] = None, chapter: Optional[int] = None, 
         query = query.filter(BibleVerse.chapter == chapter)
     return query.all()
 
+@app.get("/api/bible/export")
+def export_bible_verses_json(db: Session = Depends(get_db)):
+    verses = db.query(BibleVerse).all()
+    data = []
+    for v in verses:
+        data.append({
+            "id": v.id,
+            "book": v.book,
+            "chapter": v.chapter,
+            "verse": v.verse,
+            "text_ko": v.text_ko,
+            "text_lo_common": v.text_lo_common,
+            "text_lo_religious": v.text_lo_religious,
+            "text_lo_royal": v.text_lo_royal,
+            "comments": v.comments
+        })
+    
+    file_name = "LSLT_Lao_Bible_Database.json"
+    file_path = os.path.join(EXPORT_DIR, file_name)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        
+    return FileResponse(file_path, media_type="application/json", filename=file_name)
+
 # --- Search (Semantic and Keyword) ---
 @app.get("/api/search")
 def search_knowledge_base(query: str, top_k: int = 5, db: Session = Depends(get_db)):
