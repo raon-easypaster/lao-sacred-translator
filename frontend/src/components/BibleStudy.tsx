@@ -115,6 +115,9 @@ export const BibleStudy: React.FC = () => {
               onChange={(e) => setSelectedBook(e.target.value)}
               style={{ minWidth: '180px', padding: '8px 12px' }}
             >
+              <option value="마태복음 (Matthew)">마태복음 (Matthew)</option>
+              <option value="마가복음 (Mark)">마가복음 (Mark)</option>
+              <option value="누가복음 (Luke)">누가복음 (Luke)</option>
               <option value="요한복음 (John)">요한복음 (John)</option>
               <option value="창세기 (Genesis)">창세기 (Genesis)</option>
             </select>
@@ -128,6 +131,7 @@ export const BibleStudy: React.FC = () => {
               style={{ minWidth: '100px', padding: '8px 12px' }}
             >
               <option value="1">1장</option>
+              <option value="2">2장</option>
               <option value="3">3장</option>
             </select>
           </div>
