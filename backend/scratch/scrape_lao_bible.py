@@ -56,7 +56,7 @@ def main():
     print("This will download the requested Gospels and save them as a single JSON database.")
     
     # Scrape first 2 chapters of each Gospel as a demonstration (change ch_count for full books)
-    demo_limit = True 
+    demo_limit = False 
     
     for book, max_ch in books.items():
         bible_data[book] = {}
