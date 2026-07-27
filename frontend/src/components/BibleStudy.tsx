@@ -2,6 +2,95 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import type { BibleVerseItem } from '../types';
 
+const BIBLE_BOOKS = [
+  "창세기 (Genesis)", "출애굽기 (Exodus)", "레위기 (Leviticus)", "민수기 (Numbers)", "신명기 (Deuteronomy)",
+  "여호수아 (Joshua)", "사사기 (Judges)", "룻기 (Ruth)", "사무엘상 (1 Samuel)", "사무엘하 (2 Samuel)",
+  "열왕기상 (1 Kings)", "열왕기하 (2 Kings)", "역대기상 (1 Chronicles)", "역대기하 (2 Chronicles)",
+  "에스라 (Ezra)", "느헤미야 (Nehemiah)", "에스더 (Esther)", "욥기 (Job)", "시편 (Psalms)",
+  "잠언 (Proverbs)", "전도서 (Ecclesiastes)", "아가 (Song of Solomon)", "이사야 (Isaiah)",
+  "예레미야 (Jeremiah)", "예레미야 애가 (Lamentations)", "에스겔 (Ezekiel)", "다니엘 (Daniel)",
+  "호세아 (Hosea)", "요엘 (Joel)", "아모스 (Amos)", "오바디아 (Obadiah)", "요나 (Jonah)",
+  "미가 (Micah)", "나훔 (Nahum)", "하박국 (Habakkuk)", "스바냐 (Zephaniah)", "학개 (Haggai)",
+  "스가랴 (Zechariah)", "말라기 (Malachi)",
+  "마태복음 (Matthew)", "마가복음 (Mark)", "누가복음 (Luke)", "요한복음 (John)", "사도행전 (Acts)",
+  "로마서 (Romans)", "고린도전서 (1 Corinthians)", "고린도후서 (2 Corinthians)", "갈라디아서 (Galatians)",
+  "에베소서 (Ephesians)", "빌립보서 (Philippians)", "골로새서 (Colossians)", "데살로니가전서 (1 Thessalonians)",
+  "데살로니가후서 (2 Thessalonians)", "디모데전서 (1 Timothy)", "디모데후서 (2 Timothy)", "디도서 (Titus)",
+  "빌레몬서 (Philemon)", "히브리서 (Hebrews)", "야고보서 (James)", "베드로전서 (1 Peter)",
+  "베드로후서 (2 Peter)", "요한일서 (1 John)", "요한이서 (2 John)", "요한삼서 (3 John)",
+  "유다서 (Jude)", "요한계시록 (Revelation)"
+];
+
+const getChapterCount = (bookName: string): number => {
+  if (bookName.includes("창세기") || bookName.includes("Genesis")) return 50;
+  if (bookName.includes("출애굽기") || bookName.includes("Exodus")) return 40;
+  if (bookName.includes("레위기") || bookName.includes("Leviticus")) return 27;
+  if (bookName.includes("민수기") || bookName.includes("Numbers")) return 36;
+  if (bookName.includes("신명기") || bookName.includes("Deuteronomy")) return 34;
+  if (bookName.includes("여호수아") || bookName.includes("Joshua")) return 24;
+  if (bookName.includes("사사기") || bookName.includes("Judges")) return 21;
+  if (bookName.includes("룻기") || bookName.includes("Ruth")) return 4;
+  if (bookName.includes("사무엘상") || bookName.includes("1 Samuel")) return 31;
+  if (bookName.includes("사무엘하") || bookName.includes("2 Samuel")) return 24;
+  if (bookName.includes("열왕기상") || bookName.includes("1 Kings")) return 22;
+  if (bookName.includes("열왕기하") || bookName.includes("2 Kings")) return 25;
+  if (bookName.includes("역대기상") || bookName.includes("1 Chronicles")) return 29;
+  if (bookName.includes("역대기하") || bookName.includes("2 Chronicles")) return 36;
+  if (bookName.includes("에스라") || bookName.includes("Ezra")) return 10;
+  if (bookName.includes("느헤미야") || bookName.includes("Nehemiah")) return 13;
+  if (bookName.includes("에스더") || bookName.includes("Esther")) return 10;
+  if (bookName.includes("욥기") || bookName.includes("Job")) return 42;
+  if (bookName.includes("시편") || bookName.includes("Psalms")) return 150;
+  if (bookName.includes("잠언") || bookName.includes("Proverbs")) return 31;
+  if (bookName.includes("전도서") || bookName.includes("Ecclesiastes")) return 12;
+  if (bookName.includes("아가") || bookName.includes("Song of Solomon")) return 8;
+  if (bookName.includes("이사야") || bookName.includes("Isaiah")) return 66;
+  if (bookName.includes("예레미야") || bookName.includes("Jeremiah")) return 52;
+  if (bookName.includes("예레미야 애가") || bookName.includes("Lamentations")) return 5;
+  if (bookName.includes("에스겔") || bookName.includes("Ezekiel")) return 48;
+  if (bookName.includes("다니엘") || bookName.includes("Daniel")) return 12;
+  if (bookName.includes("호세아") || bookName.includes("Hosea")) return 14;
+  if (bookName.includes("요엘") || bookName.includes("Joel")) return 3;
+  if (bookName.includes("아모스") || bookName.includes("Amos")) return 9;
+  if (bookName.includes("오바디아") || bookName.includes("Obadiah")) return 1;
+  if (bookName.includes("요나") || bookName.includes("Jonah")) return 4;
+  if (bookName.includes("미가") || bookName.includes("Micah")) return 7;
+  if (bookName.includes("나훔") || bookName.includes("Nahum")) return 3;
+  if (bookName.includes("하박국") || bookName.includes("Habakkuk")) return 3;
+  if (bookName.includes("스바냐") || bookName.includes("Zephaniah")) return 3;
+  if (bookName.includes("학개") || bookName.includes("Haggai")) return 2;
+  if (bookName.includes("스가랴") || bookName.includes("Zechariah")) return 14;
+  if (bookName.includes("말라기") || bookName.includes("Malachi")) return 4;
+  if (bookName.includes("마태복음") || bookName.includes("Matthew")) return 28;
+  if (bookName.includes("마가복음") || bookName.includes("Mark")) return 16;
+  if (bookName.includes("누가복음") || bookName.includes("Luke")) return 24;
+  if (bookName.includes("요한복음") || bookName.includes("John")) return 21;
+  if (bookName.includes("사도행전") || bookName.includes("Acts")) return 28;
+  if (bookName.includes("로마서") || bookName.includes("Romans")) return 16;
+  if (bookName.includes("고린도전서") || bookName.includes("1 Corinthians")) return 16;
+  if (bookName.includes("고린도후서") || bookName.includes("2 Corinthians")) return 13;
+  if (bookName.includes("갈라디아서") || bookName.includes("Galatians")) return 6;
+  if (bookName.includes("에베소서") || bookName.includes("Ephesians")) return 6;
+  if (bookName.includes("빌립보서") || bookName.includes("Philippians")) return 4;
+  if (bookName.includes("골로새서") || bookName.includes("Colossians")) return 4;
+  if (bookName.includes("데살로니가전서") || bookName.includes("1 Thessalonians")) return 5;
+  if (bookName.includes("데살로니가후서") || bookName.includes("2 Thessalonians")) return 3;
+  if (bookName.includes("디모데전서") || bookName.includes("1 Timothy")) return 6;
+  if (bookName.includes("디모데후서") || bookName.includes("2 Timothy")) return 4;
+  if (bookName.includes("디도서") || bookName.includes("Titus")) return 3;
+  if (bookName.includes("빌레몬서") || bookName.includes("Philemon")) return 1;
+  if (bookName.includes("히브리서") || bookName.includes("Hebrews")) return 13;
+  if (bookName.includes("야고보서") || bookName.includes("James")) return 5;
+  if (bookName.includes("베드로전서") || bookName.includes("1 Peter")) return 5;
+  if (bookName.includes("베드로후서") || bookName.includes("2 Peter")) return 3;
+  if (bookName.includes("요한일서") || bookName.includes("1 John")) return 5;
+  if (bookName.includes("요한이서") || bookName.includes("2 John")) return 1;
+  if (bookName.includes("요한삼서") || bookName.includes("3 John")) return 1;
+  if (bookName.includes("유다서") || bookName.includes("Jude")) return 1;
+  if (bookName.includes("요한계시록") || bookName.includes("Revelation")) return 22;
+  return 50;
+};
+
 export const BibleStudy: React.FC = () => {
   const [verses, setVerses] = useState<BibleVerseItem[]>([]);
   const [selectedBook, setSelectedBook] = useState('요한복음 (John)');
@@ -23,6 +112,13 @@ export const BibleStudy: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const maxCh = getChapterCount(selectedBook);
+    if (selectedChapter > maxCh) {
+      setSelectedChapter(1);
+    }
+  }, [selectedBook]);
 
   useEffect(() => {
     loadVerses();
@@ -115,11 +211,9 @@ export const BibleStudy: React.FC = () => {
               onChange={(e) => setSelectedBook(e.target.value)}
               style={{ minWidth: '180px', padding: '8px 12px' }}
             >
-              <option value="마태복음 (Matthew)">마태복음 (Matthew)</option>
-              <option value="마가복음 (Mark)">마가복음 (Mark)</option>
-              <option value="누가복음 (Luke)">누가복음 (Luke)</option>
-              <option value="요한복음 (John)">요한복음 (John)</option>
-              <option value="창세기 (Genesis)">창세기 (Genesis)</option>
+              {BIBLE_BOOKS.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -130,9 +224,9 @@ export const BibleStudy: React.FC = () => {
               onChange={(e) => setSelectedChapter(Number(e.target.value))}
               style={{ minWidth: '100px', padding: '8px 12px' }}
             >
-              <option value="1">1장</option>
-              <option value="2">2장</option>
-              <option value="3">3장</option>
+              {Array.from({ length: getChapterCount(selectedBook) }, (_, i) => i + 1).map(ch => (
+                <option key={ch} value={ch}>{ch}장</option>
+              ))}
             </select>
           </div>
         </div>
