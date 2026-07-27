@@ -80,17 +80,20 @@ class TranslationEngine:
  
         # If no API Key is available, use heuristic rule-based translation
         if not key:
-            return TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
+            result = TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
+            return TranslationEngine._sanitize_result_dict(result)
  
         # 3. Choose provider and run translation
         if provider == "gemini":
-            return TranslationEngine._translate_gemini(text, direction, mode, glossary_context, rag_context, key, model)
+            result = TranslationEngine._translate_gemini(text, direction, mode, glossary_context, rag_context, key, model)
         elif provider == "openai":
-            return TranslationEngine._translate_openai(text, direction, mode, glossary_context, rag_context, key, model)
+            result = TranslationEngine._translate_openai(text, direction, mode, glossary_context, rag_context, key, model)
         elif provider == "claude":
-            return TranslationEngine._translate_claude(text, direction, mode, glossary_context, rag_context, key, model)
+            result = TranslationEngine._translate_claude(text, direction, mode, glossary_context, rag_context, key, model)
+        else:
+            result = TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
             
-        return TranslationEngine._heuristic_fallback_translate(text, direction, mode, glossary_matches, rag_results)
+        return TranslationEngine._sanitize_result_dict(result)
  
  
     @staticmethod
@@ -200,7 +203,10 @@ class TranslationEngine:
     def _build_system_prompt(text: str, direction: str, mode: str, glossary: str, rag: str) -> str:
         prompt = (
             "당신은 라오스 종교언어, 왕실언어(Rahasap), 현대 일반 라오어, 그리고 신학 및 불교 경전의 권위자입니다.\n"
-            f"다음 지침에 따라 아래 텍스트를 번역 및 해설해 주세요.\n\n"
+            "[CRITICAL CONSTRAINT: STRICT EXCLUSION OF THAI LANGUAGE]\n"
+            "- 태국어(Thai language) 어휘, 태국식 어투, 태국어 자모(Unicode block U+0E00 ~ U+0E7F)가 번역 결과에 절대 섞이지 않게 하십시오. \n"
+            "- 태국식 조사(ครับ, ค่ะ 등) 및 태국식 감사 표현(ขอบคุณ) 등 모든 태국어 요소를 전면 배제해야 합니다. \n"
+            "- 오직 표준 라오스어 자모(Unicode block U+0E80 ~ U+0EFF)와 순수 라오스어 어휘(예: ขอบใจ 등)만을 사용하여 철저히 라오스어로만 번역해 주세요.\n\n"
             f"번역 방향: {direction}\n"
             f"선교 모드/컨텍스트: {mode}\n\n"
             f"번역할 원문:\n\"\"\"\n{text}\n\"\"\"\n\n"
@@ -291,3 +297,47 @@ class TranslationEngine:
             "source": ", ".join(list(set(sources))),
             "vocabulary": vocab_list
         }
+
+    @staticmethod
+    def _sanitize_text(text: str) -> str:
+        if not text or not isinstance(text, str):
+            return text
+        
+        # Mapping for explicit Thai to Lao consonants and vowels
+        thai_to_lao_map = {
+            'ก': 'ກ', 'ข': 'ຂ', 'ค': 'ຄ', 'ง': 'ງ', 'จ': 'ຈ', 'ฉ': 'ສ', 'ช': 'ຊ', 'ซ': 'ຊ',
+            'ญ': 'ຍ', 'ด': 'ດ', 'ต': 'ຕ', 'ถ': 'ຖ', 'ท': 'ທ', 'ธ': 'ທ', 'น': 'ນ', 'บ': 'ບ',
+            'ป': 'ປ', 'ผ': 'ຜ', 'ฝ': 'ຝ', 'พ': 'ພ', 'ฟ': 'ຟ', 'ภ': 'ພ', 'ม': 'ມ', 'ย': 'ຢ',
+            'ร': 'ຣ', 'ฤ': 'ຣ', 'ล': 'ລ', 'ฃ': 'ຂ', 'ฅ': 'ຄ', 'ฆ': 'ຄ', 'ฌ': 'ຊ', 'ฑ': 'ທ',
+            'ฒ': 'ທ', 'ณ': 'ນ', 'ศ': 'ສ', 'ษ': 'ສ', 'ส': 'ສ', 'ห': 'ຫ', 'ฬ': 'ລ', 'อ': 'ອ',
+            'ฮ': 'ຮ',
+            # Vowels & diacritics
+            'ะ': 'ະ', 'ั': 'ັ', 'า': 'າ', 'ำ': 'ຳ', 'ิ': 'ິ', 'ี': 'ີ', 'ึ': 'ຶ', 'ື': 'ື',
+            'ุ': 'ຸ', 'ู': 'ູ', 'เ': 'ເ', 'แ': 'ແ', 'โ': 'ໂ', 'ใ': 'ໃ', 'ไ': 'ໄ', '็': 'ັ',
+            '่': '່', '้': '້', '๊': '໊', '໋': '໋', '์': '໌'
+        }
+        
+        chars = []
+        for char in text:
+            if char in thai_to_lao_map:
+                chars.append(thai_to_lao_map[char])
+            elif '\u0e00' <= char <= '\u0e7f':
+                # Generic Unicode offset shift (+0x80) from Thai block to Lao block
+                lao_char_code = ord(char) + 0x80
+                if 0x0e80 <= lao_char_code <= 0x0eff:
+                    chars.append(chr(lao_char_code))
+                else:
+                    chars.append(char)
+            else:
+                chars.append(char)
+        return "".join(chars)
+
+    @staticmethod
+    def _sanitize_result_dict(result: any) -> any:
+        if isinstance(result, dict):
+            return {k: TranslationEngine._sanitize_result_dict(v) for k, v in result.items()}
+        elif isinstance(result, list):
+            return [TranslationEngine._sanitize_result_dict(v) for v in result]
+        elif isinstance(result, str):
+            return TranslationEngine._sanitize_text(result)
+        return result
