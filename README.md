@@ -38,64 +38,57 @@ Lao Sacred Language Translator(LSLT)는 선교사, 성경 번역가, 신학 연�
 
 ---
 
-## 💾 설치 방법 (Installation)
+## 💾 설치 및 실행 방법 (Installation & Setup)
 
-### 1단계: 프로젝트 디렉토리로 이동
-터미널을 열고 플랫폼이 구축된 폴더로 이동합니다.
-```bash
-cd /Users/galeb76/.gemini/antigravity/scratch/lao-sacred-translator
-```
+깃허브(GitHub)에서 프로젝트를 다운로드한 후, 아래의 **자동 설치** 방식을 권장합니다.
 
-### 2단계: 백엔드(FastAPI) 설치 및 가상환경 구성
-1. 백엔드 폴더로 이동하여 가상환경을 활성화합니다.
+### 🚀 1. 자동 설치 및 컴파일 (추천 - Mac 전용)
+LSLT는 터미널을 다루기 힘든 사용자들을 위해 **한 번의 클릭으로 모든 설정을 완료해 주는 자동 빌드 스크립트**를 내장하고 있습니다.
+
+1. 다운로드한 프로젝트 폴더 내부에 있는 **`setup.command`** 파일을 찾습니다.
+2. 마우스 오른쪽 버튼으로 클릭 후 **열기 (Open)** 또는 그냥 **더블 클릭**으로 실행합니다.
+3. 스크립트가 실행되면 파이썬 백엔드 의존성 가상환경(venv) 구축, 데이터베이스 초기화 및 사전 시딩, 프론트엔드 빌드 및 데스크톱 앱 컴파일을 순차적으로 수행합니다.
+4. 모든 과정이 끝나면 바탕화면에 **`LSLT.app`** 아이콘이 자동 생성됩니다.
+5. 이제 바탕화면의 **`LSLT` 아이콘을 더블 클릭**하면 터미널 창 없이 일반 데스크톱 프로그램처럼 앱이 켜집니다.
+
+---
+
+### 💻 2. 수동 설치 및 구동 (개발자용)
+터미널을 이용해 수동으로 실행하고 개발 모드로 수정하고 싶다면 아래 단계를 따릅니다.
+
+#### 백엔드(FastAPI) 설치 및 구동
+1. 백엔드 폴더로 이동하여 가상환경을 활성화하고 의존성을 설치합니다.
    ```bash
    cd backend
    python3 -m venv .venv
    source .venv/bin/activate
-   ```
-2. 필요 패키지를 설치합니다.
-   ```bash
    pip install -r requirements.txt
    ```
-3. `.env` 파일을 구성하여 API 키를 설정합니다. (비워둘 경우 사전 기반 오프라인 번역 모드로 구동)
+2. 데이터베이스 초기화 및 테스트 서버를 확인합니다.
    ```bash
-   # backend/.env 파일 편집
-   GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-   OPENAI_API_KEY=YOUR_OPENAI_API_KEY
-   CLAUDE_API_KEY=YOUR_CLAUDE_API_KEY
+   PYTHONPATH=. .venv/bin/python test_server.py
+   ```
+3. 백엔드 서버를 포트 8000으로 실행합니다.
+   ```bash
+   .venv/bin/uvicorn main:app --reload --port 8000
    ```
 
-### 3단계: 프론트엔드(Vite + React) 패키지 설치
-1. 프론트엔드 폴더로 이동합니다.
+#### 프론트엔드(React + Vite) 설치 및 구동
+1. 프론트엔드 폴더로 이동하여 패키지를 설치하고 개발 서버를 띄웁니다.
    ```bash
    cd ../frontend
-   ```
-2. npm 의존성 패키지를 설치합니다.
-   ```bash
    npm install
+   npm run dev
    ```
+2. 웹 브라우저를 열고 `http://localhost:5173`으로 접속합니다.
 
----
-
-## 🚀 실행 및 사용 방법 (Usage)
-
-시스템 구동을 위해 **백엔드 서버**와 **프론트엔드 서버**를 각각 실행해야 합니다.
-
-### 1. 백엔드 API 서버 실행 (Port: 8000)
-새로운 터미널 창을 열고 아래 명령어를 입력합니다.
-```bash
-cd /Users/galeb76/.gemini/antigravity/scratch/lao-sacred-translator/backend
-.venv/bin/uvicorn main:app --reload --port 8000
-```
-* 서버가 시작되면 내부적으로 `lslt_database.db` 파일이 자동 생성되고 사전 데이터가 초기 세팅됩니다.
-
-### 2. 프론트엔드 개발 서버 실행 (Port: 5173)
-또 다른 터미널 창을 열고 아래 명령어를 입력합니다.
-```bash
-cd /Users/galeb76/.gemini/antigravity/scratch/lao-sacred-translator/frontend
-npm run dev
-```
-* 실행이 완료되면 터미널에 나타나는 로컬 웹 주소(`http://localhost:5173`)를 클릭하여 브라우저로 접속합니다.
+#### 데스크톱 앱 독립 모드로 구동
+1. 데스크톱 폴더로 이동하여 패키지를 설치하고 실행합니다.
+   ```bash
+   cd ../desktop
+   npm install
+   npm start
+   ```
 
 ---
 
