@@ -106,5 +106,65 @@
     "frequency": "High",
     "source": "성경 번역 표준 지침",
     "category": "God"
+  },
+  {
+    "word_ko": "예배",
+    "word_lo_common": "ການນະມັດສະການ",
+    "word_lo_religious": "ພິທີນະມັດສະການ",
+    "word_lo_royal": "ການເຂົ້າເຝົ້າບູຊา",
+    "explanation_christian": "하나님을 찬양하고 높이는 거룩한 경배와 인격적 교제.",
+    "explanation_buddhist": "불상이나 고승에게 향을 피우고 삼배를 드리며 복을 기원하는 행위(부차).",
+    "missionary_notes": "불교식 기복적 숭배와 구별되는, 하나님의 임재 안에서 영과 진리로 드리는 예배의 본질을 가르쳐야 합니다.",
+    "frequency": "High",
+    "source": "예배 지침서",
+    "category": "Worship"
+  },
+  {
+    "word_ko": "성령",
+    "word_lo_common": "ພຣະວິນຍານບໍລິສຸດ",
+    "word_lo_religious": "ພຣະວິນຍານບໍລິສຸດ",
+    "word_lo_royal": "ພຣະວິນຍານບໍລິສຸດທິຄຸນ",
+    "explanation_christian": "삼위일체 하나님의 제3위격이신 성령 하나님. 보혜사 위로자이자 영적 지배자.",
+    "explanation_buddhist": "애니미즘의 정령(피, ຜີ)이나 귀신, 조상신 같은 영적 존재로 혼동하기 쉬움.",
+    "missionary_notes": "현지인들은 성령을 단순한 '착한 영'이나 기를 돕는 기운으로 여기기 쉽습니다. 인격을 가지신 삼위일체 하나님이심을 분명히 선포해야 합니다.",
+    "frequency": "High",
+    "source": "성령론 강의",
+    "category": "Holy Spirit"
+  },
+  {
+    "word_ko": "천국",
+    "word_lo_common": "ສະຫວັນ",
+    "word_lo_religious": "ແຜ່ນດິນສະຫວັນ",
+    "word_lo_royal": "ພຣະຣາຊອານາຈັກສະຫວັນ",
+    "explanation_christian": "하나님의 주권과 통치가 온전히 임하는 영원한 처소. 영생을 누리는 곳.",
+    "explanation_buddhist": "선업을 쌓은 자들이 환생하는 육도윤회 중 하나인 상천(사천왕천 등). 영원하지 않으며 공덕이 다하면 다시 윤회함.",
+    "missionary_notes": "일반 단어 '사완(ສະຫວັນ)'은 불교적 천상계로 오해받기 쉬우므로, 성경적인 '하나님의 나라'(ພຣະຣາຊອານາຈັກຂອງພຣະເຈົ້າ) 개념을 병행하여 설명하는 것이 좋습니다.",
+    "frequency": "High",
+    "source": "조직신학 내세론",
+    "category": "Heaven"
+  },
+  {
+    "word_ko": "믿음",
+    "word_lo_common": "ຄວາມເຊື່ອ",
+    "word_lo_religious": "ຄວາມເຊື່ອວາງໃຈ",
+    "word_lo_royal": "ຄວາມສັດທາ",
+    "explanation_christian": "예수 그리스도를 구주로 인정하고 삶을 온전히 의탁하며 신뢰하는 관계적 반응.",
+    "explanation_buddhist": "붓다의 가르침과 인과법칙을 이성적으로 납득하고 확신하는 신심(삿다, ຄວາມສັດທາ).",
+    "missionary_notes": "단순한 지적 동의를 뜻하는 'ຄວາມເຊື່ອ'를 넘어, 전인격적 의탁을 나타내는 'ເຊື່ອວາງໃຈ'(체우아 왕짜이) 표현을 조화롭게 가르쳐야 기독교적 신뢰의 본질이 전달됩니다.",
+    "frequency": "High",
+    "source": "조직신학 서론",
+    "category": "Faith"
+  },
+  {
+    "word_ko": "기도",
+    "word_lo_common": "ການອະທິຖານ",
+    "word_lo_religious": "ການອະທິຖານວິງວອນ",
+    "word_lo_royal": "ການທູນຂໍ",
+    "explanation_christian": "하나님 아버지와 가지는 영적인 대화이자 친밀한 친교, 간구.",
+    "explanation_buddhist": "원하는 바를 마음에 강하게 기원하거나(아티탄, ອະທິຖານ), 주문 또는 경전을 외워 복을 구하는 일방적 염원.",
+    "missionary_notes": "불교식의 일방적인 기원/샤머니즘식 기복 기도로 오해하지 않도록, 기도는 관계적 대상인 하나님 아버지와의 쌍방향 대화임을 반드시 강조하십시오.",
+    "frequency": "High",
+    "source": "기도론 실습",
+    "category": "Prayer"
   }
 ]
