@@ -166,5 +166,77 @@
     "frequency": "High",
     "source": "기도론 실습",
     "category": "Prayer"
+  },
+  {
+    "word_ko": "율법",
+    "word_lo_common": "ພຣະບັນຍັດ",
+    "word_lo_religious": "ພຣະທຳບັນຍັດ",
+    "word_lo_royal": "ພຣະທຳບັນຍັດ",
+    "explanation_christian": "하나님께서 선민 이스라엘에게 주신 도덕법, 의식법 및 시민법규. 죄를 드러내어 구원자께 인도하는 역할.",
+    "explanation_buddhist": "우주의 불변하는 인과율인 도덕적 법칙(다마, ธรรม) 혹은 승려들이 지켜야 할 계율(위나이, ວິນັຍ).",
+    "missionary_notes": "라오스인들에게 율법은 불교적 자력구원을 위한 고행과 계율(위나이)로 다가오기 쉽습니다. 기독교의 율법은 구원의 조건이 아닌 은혜로 구원받은 자의 감사의 삶의 표준임을 설명하십시오.",
+    "frequency": "Medium",
+    "source": "구약 모세오경",
+    "category": "Law"
+  },
+  {
+    "word_ko": "복음",
+    "word_lo_common": "ຂ່າວດີ",
+    "word_lo_religious": "ຂ່າວປະເສີດ",
+    "word_lo_royal": "ພຣະກິດຕິຄຸນ",
+    "explanation_christian": "예수 그리스도의 성육신, 대속의 죽음, 부활을 통해 성취된 영원한 구원의 기쁜 소식.",
+    "explanation_buddhist": "단순한 이로운 소식 혹은 성현들의 훌륭한 가르침(다마).",
+    "missionary_notes": "단순한 기쁜 뉴스(ຂ່າວດີ)는 세속적 복지 소식으로 해석될 수 있으므로, 왕실체이며 교단 공인 명칭인 '프라키띠쿤(ພຣະກິດຕິຄຸນ)' 혹은 '카오프라세트(ຂ່າວປະເສີດ)'를 엄격히 사용하십시오.",
+    "frequency": "High",
+    "source": "조직신학 구원론",
+    "category": "Gospel"
+  },
+  {
+    "word_ko": "부활",
+    "word_lo_common": "ການຄືນມາຈາກຕາຍ",
+    "word_lo_religious": "การຟື້ນຄືນພຣະຊົນ",
+    "word_lo_royal": "ການທົງຟື້ນພຣະຊົນ",
+    "explanation_christian": "육체의 사망 선언 이후, 하나님의 능력으로 신령한 몸을 입고 죽음을 이기며 다시 살아나는 것.",
+    "explanation_buddhist": "전생의 카르마에 의해 육체의 한 주기가 끝나면 다른 생명체로 환생하는 윤회(ການວຽນວ່າຍຕາຍເກີດ).",
+    "missionary_notes": "라오스 불교인들에게 '다시 살아남'은 고통의 반복인 윤회/환생으로 직결됩니다. 기독교의 부활은 생사의 굴레를 영원히 끝내고 온전하고 영광스런 몸을 입는 단회적 사건임을 단호하게 가르치십시오.",
+    "frequency": "High",
+    "source": "조직신학 기독론",
+    "category": "Resurrection"
+  },
+  {
+    "word_ko": "천사",
+    "word_lo_common": "ທູດສະຫວັນ",
+    "word_lo_religious": "ພຣະທູດສະຫວັນ",
+    "word_lo_royal": "ພຣະຣາຊທູດສະຫວັນ",
+    "explanation_christian": "하나님에 의해 창조되어 신자들을 돕고 주님의 뜻을 행하는 영적인 사자(Messenger).",
+    "explanation_buddhist": "천상계의 신격(데와다, ເທວະດາ)이나 정령, 신선.",
+    "missionary_notes": "현지 단어 '데와다'를 단독으로 쓸 경우 숭배 대상인 힌두/불교식 잡신들로 혼동하므로, 기도의 대상이 결코 될 수 없는 영적 피조물(ທູດສະຫວັນ)임을 분명히 설명하십시오.",
+    "frequency": "Medium",
+    "source": "천사론 강의",
+    "category": "Angel"
+  },
+  {
+    "word_ko": "성전",
+    "word_lo_common": "ໂບດ",
+    "word_lo_religious": "ພຣະວິຫານ",
+    "word_lo_royal": "ພຣະມະຫາວິຫານ",
+    "explanation_christian": "하나님의 이름과 거룩한 임재가 머무는 성별된 장소. 신약 시대에는 성령이 거하시는 신자의 몸과 교회를 의미함.",
+    "explanation_buddhist": "불상을 모시고 계율을 행하는 불교 사원(왓, ວັດ)이나 법당(위한, ວິຫານ).",
+    "missionary_notes": "불교도들은 성전(ພຣະວິຫານ)을 절(ວັດ)처럼 물리적으로 신성시되는 공간으로만 한정합니다. 성경적인 교회는 건물이 아니라 그리스도의 몸 된 신자 공동체(성도)라는 점을 주지시키십시오.",
+    "frequency": "Medium",
+    "source": "교회론 강해",
+    "category": "Church"
+  },
+  {
+    "word_ko": "영생",
+    "word_lo_common": "ຊີວິດຕະຫຼອດໄປ",
+    "word_lo_religious": "ຊີວິດອັນຕະຫຼອດໄປເປັນນິດ",
+    "word_lo_royal": "ຊີວິດນິລັນດອນ",
+    "explanation_christian": "하나님 나라에서 창조주와 함께 누리는 사랑과 은혜의 영원하고 완전한 생명.",
+    "explanation_buddhist": "생사 고통을 무한히 반복하는 영원한 윤회의 굴레(삼사라). 절대적 소멸(열반)만이 복으로 여겨짐.",
+    "missionary_notes": "불교도들에게 '영원히 산다'는 사상은 고통스러운 윤회에 갇히는 저주에 가깝습니다. 영생은 무한한 생사의 반복이 아닌, 고통이 제거된 하나님 품안에서의 완성이자 영원한 쉼임을 명확히 하십시오.",
+    "frequency": "High",
+    "source": "신약 종말론",
+    "category": "Eternal Life"
   }
 ]
