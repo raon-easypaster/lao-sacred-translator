@@ -31,13 +31,65 @@ class DocumentParser:
 
     @staticmethod
     def _parse_pdf(file_path: str) -> str:
+        # 1. Try digital text extraction first
         reader = PdfReader(file_path)
         text = []
         for page in reader.pages:
             page_text = page.extract_text()
             if page_text:
                 text.append(page_text)
-        return "\n\n".join(text)
+        combined_text = "\n\n".join(text)
+        
+        if combined_text.strip():
+            return combined_text
+            
+        # 2. Fall back to Tesseract OCR if digital text is empty (scanned image PDF)
+        import subprocess
+        import glob
+        import shutil
+        import uuid
+        
+        print(f"[DocumentParser] Digital extraction empty. Falling back to OCR for scanned PDF: {file_path}")
+        tmp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"tmp_ocr_{uuid.uuid4().hex[:8]}")
+        os.makedirs(tmp_dir, exist_ok=True)
+        
+        try:
+            # Convert PDF pages to PNG images
+            cmd_ppm = [
+                "/opt/homebrew/bin/pdftoppm",
+                "-png",
+                "-r", "150",
+                file_path,
+                os.path.join(tmp_dir, "page")
+            ]
+            subprocess.run(cmd_ppm, check=True)
+            
+            images = sorted(glob.glob(os.path.join(tmp_dir, "page-*.png")))
+            ocr_pages = []
+            
+            # OCR up to 15 pages in synchronous mode to prevent server timeout
+            max_pages = min(len(images), 15)
+            for idx in range(max_pages):
+                img_path = images[idx]
+                cmd_tess = [
+                    "/opt/homebrew/bin/tesseract",
+                    img_path,
+                    "stdout",
+                    "-l", "kor+eng+lao",
+                    "--oem", "1",
+                    "--psm", "3"
+                ]
+                result = subprocess.run(cmd_tess, capture_output=True, text=True, check=True)
+                page_text = result.stdout.strip()
+                if page_text:
+                    ocr_pages.append(page_text)
+            return "\n\n".join(ocr_pages)
+        except Exception as e:
+            print(f"[DocumentParser] OCR fallback failed: {e}")
+            return ""
+        finally:
+            if os.path.exists(tmp_dir):
+                shutil.rmtree(tmp_dir)
 
     @staticmethod
     def _parse_docx(file_path: str) -> str:

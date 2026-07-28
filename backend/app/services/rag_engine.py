@@ -8,6 +8,13 @@ from app.models.schemas import DocumentChunk, Document
 from app.core.config import settings
 
 class RAGEngine:
+    # Class-level cache for high-performance local TF-IDF search
+    _cache_chunks = None
+    _cache_vocab = None
+    _cache_tfidf = None
+    _cache_idf = None
+    _cache_chunk_norms = None
+
     @staticmethod
     def get_embedding(text: str, provider: str = None, api_key: str = None) -> List[float]:
         """Calculates vector embedding for the text using API or returns empty if local."""
@@ -75,7 +82,7 @@ class RAGEngine:
 
     @staticmethod
     def _tf_idf_similarity(query: str, chunks: List[DocumentChunk], top_k: int = 3) -> List[Tuple[DocumentChunk, float]]:
-        """Calculates TF-IDF similarity between query and chunks in pure Python/Numpy."""
+        """Calculates TF-IDF similarity between query and chunks in pure Python/Numpy with class-level caching."""
         if not chunks:
             return []
             
@@ -83,67 +90,83 @@ class RAGEngine:
         if not query_words:
             return [(c, 0.0) for c in chunks[:top_k]]
             
-        # Build vocabulary of chunks
-        vocab = {}
-        chunk_tokens_list = []
-        
-        for c in chunks:
-            tokens = RAGEngine._tokenize(c.content)
-            chunk_tokens_list.append(tokens)
-            for t in tokens:
-                if t not in vocab:
-                    vocab[t] = len(vocab)
-                    
-        # Add query tokens to vocab if not present
-        for t in query_words:
-            if t not in vocab:
-                vocab[t] = len(vocab)
-                
-        vocab_size = len(vocab)
         N = len(chunks)
         
-        # Calculate term frequencies
-        tf = np.zeros((N, vocab_size))
-        for i, tokens in enumerate(chunk_tokens_list):
-            for t in tokens:
-                tf[i, vocab[t]] += 1
-                
-        # Calculate document frequencies
-        df = np.zeros(vocab_size)
-        for t in vocab:
-            df[vocab[t]] = sum(1 for tokens in chunk_tokens_list if t in tokens)
+        # Check if cache is valid (checks chunk count and first/last chunk ID consistency)
+        if (RAGEngine._cache_chunks is None or 
+            len(RAGEngine._cache_chunks) != N or 
+            RAGEngine._cache_chunks[0].id != chunks[0].id or 
+            RAGEngine._cache_chunks[-1].id != chunks[-1].id):
             
-        # Calculate IDF (with smoothing)
-        idf = np.log((N + 1) / (df + 1)) + 1
+            print(f"[RAGEngine] Rebuilding TF-IDF cache for {N} chunks...")
+            # Rebuild cache
+            vocab = {}
+            chunk_tokens_list = []
+            
+            for c in chunks:
+                tokens = RAGEngine._tokenize(c.content)
+                chunk_tokens_list.append(tokens)
+                for t in tokens:
+                    if t not in vocab:
+                        vocab[t] = len(vocab)
+                        
+            vocab_size = len(vocab)
+            
+            # Calculate term frequencies
+            tf = np.zeros((N, vocab_size))
+            for i, tokens in enumerate(chunk_tokens_list):
+                for t in tokens:
+                    tf[i, vocab[t]] += 1
+                    
+            # Calculate document frequencies (vectorized NumPy)
+            df = np.sum(tf > 0, axis=0)
+                
+            # Calculate IDF with smoothing
+            idf = np.log((N + 1) / (df + 1)) + 1
+            
+            # TF-IDF matrix
+            tfidf = tf * idf
+            
+            # Precompute chunk vector norms for fast cosine division
+            chunk_norms = np.linalg.norm(tfidf, axis=1)
+            
+            # Store in cache
+            RAGEngine._cache_chunks = chunks
+            RAGEngine._cache_vocab = vocab
+            RAGEngine._cache_tfidf = tfidf
+            RAGEngine._cache_idf = idf
+            RAGEngine._cache_chunk_norms = chunk_norms
+            print(f"[RAGEngine] TF-IDF cache rebuilt successfully. Vocab size: {vocab_size}")
+            
+        # Use cached values
+        vocab = RAGEngine._cache_vocab
+        tfidf = RAGEngine._cache_tfidf
+        idf = RAGEngine._cache_idf
+        chunk_norms = RAGEngine._cache_chunk_norms
+        vocab_size = len(vocab)
         
-        # TF-IDF matrix
-        tfidf = tf * idf
-        
-        # Query vector
+        # Query vector representation
         query_tf = np.zeros(vocab_size)
         for t in query_words:
-            query_tf[vocab[t]] += 1
+            if t in vocab:
+                query_tf[vocab[t]] += 1
         query_vector = query_tf * idf
         
-        # Cosine similarity
+        # Cosine similarity calculation
         query_norm = np.linalg.norm(query_vector)
         if query_norm == 0:
             return [(c, 0.0) for c in chunks[:top_k]]
             
-        chunk_norms = np.linalg.norm(tfidf, axis=1)
-        similarities = []
+        # Parallel dot product and cosine similarity using NumPy vectorized arithmetic
+        similarities_scores = np.dot(tfidf, query_vector) / (chunk_norms * query_norm + 1e-9)
         
-        for i in range(N):
-            norm = chunk_norms[i]
-            if norm == 0:
-                similarity = 0.0
-            else:
-                similarity = np.dot(tfidf[i], query_vector) / (norm * query_norm)
-            similarities.append((chunks[i], float(similarity)))
-            
         # Sort and return top_k
-        similarities.sort(key=lambda x: x[1], reverse=True)
-        return similarities[:top_k]
+        results = []
+        for i in range(N):
+            results.append((chunks[i], float(similarities_scores[i])))
+            
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:top_k]
 
     @staticmethod
     def search(db: Session, query: str, top_k: int = 3, provider: str = None, api_key: str = None) -> List[Dict[str, Any]]:

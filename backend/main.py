@@ -549,11 +549,16 @@ async def translate_entire_document(
             # Fallback to single newline split if no double newlines
             paragraphs = [p.strip() for p in extracted_text.split("\n") if p.strip()]
         
-        translated_results = []
-        for p in paragraphs:
+        # Parallel paragraph translation using ThreadPoolExecutor
+        import concurrent.futures
+        from app.core.database import SessionLocal
+
+        def translate_single_paragraph(p):
+            # Open a dedicated DB session for this thread to prevent SQLite thread conflicts
+            thread_db = SessionLocal()
             try:
                 res = TranslationEngine.translate(
-                    db=db,
+                    db=thread_db,
                     text=p,
                     direction=direction,
                     mode="sermon",
@@ -562,16 +567,16 @@ async def translate_entire_document(
                     model=model
                 )
                 if "error" in res:
-                    translated_results.append({
+                    return {
                         "source": p,
                         "error": res["error"],
                         "translation": "번역 실패 (AI 오류)",
                         "literal": p,
                         "preaching": p,
                         "contextual": p
-                    })
+                    }
                 else:
-                    translated_results.append({
+                    return {
                         "source": p,
                         "translation": res.get("translation", ""),
                         "literal": res.get("literal", ""),
@@ -579,16 +584,23 @@ async def translate_entire_document(
                         "contextual": res.get("contextual", ""),
                         "cultural_warning": res.get("cultural_warning", ""),
                         "commentary": res.get("commentary", "")
-                    })
+                    }
             except Exception as e:
-                translated_results.append({
+                return {
                     "source": p,
                     "error": str(e),
                     "translation": "번역 실패 (예외 발생)",
                     "literal": p,
                     "preaching": p,
                     "contextual": p
-                })
+                }
+            finally:
+                thread_db.close()
+
+        # Run translations concurrently in parallel (max 5 workers to respect API rate limits)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            # executor.map preserves the original paragraph ordering
+            translated_results = list(executor.map(translate_single_paragraph, paragraphs))
                 
         # 4. Compile Markdown Report
         report_md = f"# LSLT 설교문 전문 상황화 번역 보고서\n\n"
