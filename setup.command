@@ -69,6 +69,7 @@ fi
 osacompile -o "$APP_PATH" -e "do shell script \"$PROJECT_ROOT/desktop/run_silent.sh > /dev/null 2>&1 &\""
 if [ -f "$PROJECT_ROOT/desktop/applet.icns" ]; then
     cp "$PROJECT_ROOT/desktop/applet.icns" "$APP_PATH/Contents/Resources/applet.icns"
+    cp "$PROJECT_ROOT/desktop/applet.icns" "$APP_PATH/Contents/Resources/AppIcon.icns"
     touch "$APP_PATH"
 fi
 echo "[✔] Desktop App compiled successfully with Laos Flag icon and placed on your Desktop: LSLT.app"
