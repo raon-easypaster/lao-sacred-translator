@@ -115,7 +115,7 @@ class TranslationEngine:
         }
         
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=20)
+            response = requests.post(url, headers=headers, json=payload, timeout=90)
             if response.status_code == 200:
                 result = response.json()
                 content = result["candidates"][0]["content"]["parts"][0]["text"]
@@ -149,7 +149,7 @@ class TranslationEngine:
         }
         
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=20)
+            response = requests.post(url, headers=headers, json=payload, timeout=90)
             if response.status_code == 200:
                 content = response.json()["choices"][0]["message"]["content"]
                 return json.loads(content)
@@ -183,7 +183,7 @@ class TranslationEngine:
         }
         
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=20)
+            response = requests.post(url, headers=headers, json=payload, timeout=90)
             if response.status_code == 200:
                 content = response.json()["content"][0]["text"]
                 if "```json" in content:
