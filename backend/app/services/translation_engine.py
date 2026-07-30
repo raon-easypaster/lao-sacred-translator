@@ -57,7 +57,7 @@ class TranslationEngine:
         # 2. Search RAG Document DB
         # Use provider-specific key for embeddings too
         emb_key = api_key or (settings.GEMINI_API_KEY if settings.EMBEDDING_PROVIDER == "gemini" else (settings.OPENAI_API_KEY if settings.EMBEDDING_PROVIDER == "openai" else ""))
-        rag_results = RAGEngine.search(db, text, top_k=2, provider=settings.EMBEDDING_PROVIDER, api_key=emb_key)
+        rag_results = RAGEngine.search(db, text, top_k=5, provider=settings.EMBEDDING_PROVIDER, api_key=emb_key)
         
         # Format glossary and RAG contexts for the prompt
         glossary_context = ""
@@ -207,6 +207,10 @@ class TranslationEngine:
             "- 태국어(Thai language) 어휘, 태국식 어투, 태국어 자모(Unicode block U+0E00 ~ U+0E7F)가 번역 결과에 절대 섞이지 않게 하십시오. \n"
             "- 태국식 조사(ครับ, ค่ะ 등) 및 태국식 감사 표현(ขอบคุณ) 등 모든 태국어 요소를 전면 배제해야 합니다. \n"
             "- 오직 표준 라오스어 자모(Unicode block U+0E80 ~ U+0EFF)와 순수 라오스어 어휘(예: ขอบใจ 등)만을 사용하여 철저히 라오스어로만 번역해 주세요.\n\n"
+            "[RAG REFERENCE ADHERENCE REQUIREMENT (CRITICAL)]\n"
+            "- 아래 제공된 '참고용 배경 문헌 자료 (RAG)'를 가장 우선시되는 절대적 번역 표준으로 적용하십시오.\n"
+            "- 원문에 등장하는 성경 구절이나 신학 단어가 RAG 자료(Lao Bible Popular 2015 Version, 평행 성경 구절, 사전 문헌 등)에 포함되어 있는 경우, 임의로 라오스어 번역을 직접 창작(유추)하지 마십시오.\n"
+            "- 반드시 RAG 자료에 명시된 라오어 공식 성경 구절과 번역 어휘를 그대로 가져와 번역 결과(translation, literal, preaching, contextual 필드 모두)에 정확히 반영하십시오. RAG 자료의 성경 텍스트와 철자를 100% 철저하게 보존하여 인용해야 합니다.\n\n"
             "[BIBLE REFERENCE AUTHORITY: laobible.net]\n"
             "- 번역 시 기독교 신학 용어 및 성경 구절 인용은 laobible.net(Lao Bible Popular 2015 Version 및 Spoken Lao NT)에 기재된 라오어 성경의 공식 정서법 및 어휘 선택을 최우선적으로 참조하여 번역을 구성하십시오. 임의의 라오어 조합보다 실제 현지 공식 성경 표현을 존중해야 합니다.\n\n"
             f"번역 방향: {direction}\n"
