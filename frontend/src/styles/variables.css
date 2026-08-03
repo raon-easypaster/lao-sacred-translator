@@ -2,6 +2,35 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
+/* Register Saysettha Lao National Fonts */
+@font-face {
+  font-family: 'Saysettha';
+  src: url('/fonts/Saysettha-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Saysettha';
+  src: url('/fonts/Saysettha-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Saysettha';
+  src: url('/fonts/Saysettha-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Saysettha';
+  src: url('/fonts/Saysettha-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
 :root {
   /* Color Palette */
   --bg-primary: #080A10;      /* Midnight Blue base */
@@ -37,7 +66,7 @@
   /* Fonts */
   --font-main: 'Inter', sans-serif;
   --font-title: 'Outfit', sans-serif;
-  --font-lao: 'Noto Sans Lao', sans-serif;
+  --font-lao: 'Saysettha', 'Noto Sans Lao', sans-serif;
   
   /* Layout */
   --sidebar-width: 260px;
