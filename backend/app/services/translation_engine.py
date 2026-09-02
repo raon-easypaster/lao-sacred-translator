@@ -1,4 +1,5 @@
 import json
+import time
 import requests
 from sqlalchemy.orm import Session
 from app.models.schemas import Glossary, TranslationMemory
@@ -199,36 +200,48 @@ class TranslationEngine:
             ]
         }
 
-        try:
-            response = requests.post(url, headers=headers, json=payload, timeout=120)
-            if response.status_code == 200:
-                resp_json = response.json()
-                content = resp_json["content"][0]["text"].strip()
-                # 코드펜스 제거
-                if "```json" in content:
-                    content = content.split("```json")[1].split("```")[0].strip()
-                elif "```" in content:
-                    content = content.split("```")[1].split("```")[0].strip()
-                # 잘린 JSON 복구: 마지막 완전한 필드까지만 파싱 시도
-                try:
-                    return json.loads(content)
-                except json.JSONDecodeError:
-                    # stop_reason이 max_tokens면 잘린 것 — 핵심 필드만 추출
-                    stop_reason = resp_json.get("stop_reason", "")
-                    if stop_reason == "max_tokens":
-                        err_msg = "Claude 응답이 너무 길어 잘렸습니다. 입력 텍스트를 짧게 나눠서 번역해 주세요."
-                    else:
-                        err_msg = f"Claude 응답 JSON 파싱 실패: {content[:200]}..."
+        last_conn_err = None
+        for attempt in range(2):
+            try:
+                response = requests.post(url, headers=headers, json=payload, timeout=120)
+                if response.status_code == 200:
+                    resp_json = response.json()
+                    content = resp_json["content"][0]["text"].strip()
+                    if "```json" in content:
+                        content = content.split("```json")[1].split("```")[0].strip()
+                    elif "```" in content:
+                        content = content.split("```")[1].split("```")[0].strip()
+                    try:
+                        return json.loads(content)
+                    except json.JSONDecodeError:
+                        stop_reason = resp_json.get("stop_reason", "")
+                        if stop_reason == "max_tokens":
+                            err_msg = "Claude 응답이 너무 길어 잘렸습니다. 입력 텍스트를 짧게 나눠서 번역해 주세요."
+                        else:
+                            err_msg = f"Claude 응답 JSON 파싱 실패: {content[:200]}..."
+                        print(err_msg)
+                        return {"error": err_msg, "translation": text}
+                else:
+                    err_msg = f"Claude API Error (status {response.status_code}): {response.text}"
                     print(err_msg)
                     return {"error": err_msg, "translation": text}
-            else:
-                err_msg = f"Claude API Error (status {response.status_code}): {response.text}"
+            except requests.exceptions.ConnectionError as e:
+                last_conn_err = e
+                if attempt == 0:
+                    print(f"[Claude] 연결 오류 (1차 시도), 3초 후 재시도: {e}")
+                    time.sleep(3)
+                continue
+            except Exception as e:
+                err_msg = f"Claude API Exception: {str(e)}"
                 print(err_msg)
                 return {"error": err_msg, "translation": text}
-        except Exception as e:
-            err_msg = f"Claude API Exception: {str(e)}"
-            print(err_msg)
-            return {"error": err_msg, "translation": text}
+
+        err_msg = (
+            "Claude API 연결이 끊겼습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해 주세요.\n"
+            f"(상세: {str(last_conn_err)})"
+        )
+        print(err_msg)
+        return {"error": err_msg, "translation": text}
 
 
     @staticmethod
