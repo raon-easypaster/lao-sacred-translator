@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#080F48"/>
+      <stop offset="100%" stop-color="#182682"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Left page -->
+  <rect x="10" y="16" width="20" height="28" rx="2" fill="#FCF8EB"/>
+  <!-- Right page -->
+  <rect x="34" y="16" width="20" height="28" rx="2" fill="#F3EED8"/>
+  <!-- Spine -->
+  <rect x="30" y="16" width="4" height="28" fill="#D5AA32"/>
+  <!-- Star -->
+  <polygon points="32,8 33.4,12.2 37.8,12.2 34.2,14.8 35.6,19 32,16.4 28.4,19 29.8,14.8 26.2,12.2 30.6,12.2" fill="#F5C83C"/>
+  <!-- Lao text lines (left page) -->
+  <rect x="13" y="21" width="14" height="2.5" rx="1.2" fill="#A87840" opacity="0.75"/>
+  <rect x="13" y="26" width="10" height="2.5" rx="1.2" fill="#A87840" opacity="0.75"/>
+  <rect x="13" y="31" width="13" height="2.5" rx="1.2" fill="#A87840" opacity="0.75"/>
+  <rect x="13" y="36" width="9"  height="2.5" rx="1.2" fill="#A87840" opacity="0.75"/>
+  <!-- Korean text lines (right page) -->
+  <rect x="37" y="21" width="14" height="2.5" rx="1.2" fill="#5060B4" opacity="0.75"/>
+  <rect x="37" y="26" width="10" height="2.5" rx="1.2" fill="#5060B4" opacity="0.75"/>
+  <rect x="37" y="31" width="13" height="2.5" rx="1.2" fill="#5060B4" opacity="0.75"/>
+  <rect x="37" y="36" width="8"  height="2.5" rx="1.2" fill="#5060B4" opacity="0.75"/>
+  <!-- Arrow left -->
+  <polygon points="7,32 11,29 11,31 15,31 15,33 11,33 11,35" fill="#F5C83C" opacity="0.9"/>
+  <!-- Arrow right -->
+  <polygon points="57,32 53,29 53,31 49,31 49,33 53,33 53,35" fill="#F5C83C" opacity="0.9"/>
+  <!-- Lotus petals -->
+  <polygon points="20,48 18,55 22,55" fill="#F5C83C" opacity="0.35"/>
+  <polygon points="25,47 23,55 27,55" fill="#F5C83C" opacity="0.45"/>
+  <polygon points="32,46 30,55 34,55" fill="#F5C83C" opacity="0.60"/>
+  <polygon points="39,47 37,55 41,55" fill="#F5C83C" opacity="0.45"/>
+  <polygon points="44,48 42,55 46,55" fill="#F5C83C" opacity="0.35"/>
+</svg>

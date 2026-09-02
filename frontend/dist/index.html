@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇱🇦</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LSLT - Lao Sacred Language Translator</title>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        var div = document.createElement('div');
+        div.style.color = '#c92a2a';
+        div.style.padding = '20px';
+        div.style.background = '#fff5f5';
+        div.style.border = '2px solid #c92a2a';
+        div.style.position = 'fixed';
+        div.style.top = '20px';
+        div.style.left = '20px';
+        div.style.right = '20px';
+        div.style.zIndex = '99999';
+        div.style.borderRadius = '8px';
+        div.style.fontFamily = 'monospace';
+        div.style.whiteSpace = 'pre-wrap';
+        div.innerText = 'LSLT Runtime Diagnostic Info:\n\nError: ' + message + '\nSource: ' + source + '\nLine: ' + lineno + ':' + colno + '\nStack: ' + (error ? error.stack : 'N/A');
+        document.body.appendChild(div);
+        return false;
+      };
+    </script>
+    <script type="module" crossorigin src="./assets/index-BaWLM8fU.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-SiGZioEQ.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
