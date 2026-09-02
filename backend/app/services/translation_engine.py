@@ -192,20 +192,35 @@ class TranslationEngine:
         
         payload = {
             "model": model or settings.DEFAULT_CLAUDE_MODEL,
-            "max_tokens": 2048,
-            "system": "You are a professional Lao religious translator, theologian, and linguist. Return a JSON object ONLY.",
+            "max_tokens": 8192,
+            "system": "You are a professional Lao religious translator, theologian, and linguist. Return a JSON object ONLY. No markdown, no explanation.",
             "messages": [
                 {"role": "user", "content": prompt}
             ]
         }
-        
+
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=90)
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
             if response.status_code == 200:
-                content = response.json()["content"][0]["text"]
+                resp_json = response.json()
+                content = resp_json["content"][0]["text"].strip()
+                # 코드펜스 제거
                 if "```json" in content:
                     content = content.split("```json")[1].split("```")[0].strip()
-                return json.loads(content)
+                elif "```" in content:
+                    content = content.split("```")[1].split("```")[0].strip()
+                # 잘린 JSON 복구: 마지막 완전한 필드까지만 파싱 시도
+                try:
+                    return json.loads(content)
+                except json.JSONDecodeError:
+                    # stop_reason이 max_tokens면 잘린 것 — 핵심 필드만 추출
+                    stop_reason = resp_json.get("stop_reason", "")
+                    if stop_reason == "max_tokens":
+                        err_msg = "Claude 응답이 너무 길어 잘렸습니다. 입력 텍스트를 짧게 나눠서 번역해 주세요."
+                    else:
+                        err_msg = f"Claude 응답 JSON 파싱 실패: {content[:200]}..."
+                    print(err_msg)
+                    return {"error": err_msg, "translation": text}
             else:
                 err_msg = f"Claude API Error (status {response.status_code}): {response.text}"
                 print(err_msg)
