@@ -120,6 +120,23 @@ class TranslationEngine:
                 result = response.json()
                 content = result["candidates"][0]["content"]["parts"][0]["text"]
                 return json.loads(content)
+            elif response.status_code == 429:
+                try:
+                    detail = response.json().get("error", {})
+                    status = detail.get("status", "")
+                except Exception:
+                    status = ""
+                if "RESOURCE_EXHAUSTED" in status or "RESOURCE_EXHAUSTED" in response.text:
+                    err_msg = (
+                        "Gemini API 크레딧이 소진되었습니다.\n"
+                        "해결 방법:\n"
+                        "① 앱 설정에서 제공자를 'Claude' 또는 'OpenAI'로 변경 후 해당 API 키를 입력하세요.\n"
+                        "② 또는 https://ai.studio/projects 에서 Gemini 크레딧을 충전하세요."
+                    )
+                else:
+                    err_msg = f"Gemini API 요청 한도 초과 (429). 잠시 후 다시 시도하거나 설정에서 다른 제공자로 전환하세요."
+                print(err_msg)
+                return {"error": err_msg, "translation": text}
             else:
                 err_msg = f"Gemini API Error (status {response.status_code}): {response.text}"
                 print(err_msg)

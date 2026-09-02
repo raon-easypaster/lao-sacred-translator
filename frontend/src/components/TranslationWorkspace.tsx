@@ -16,15 +16,17 @@ export const TranslationWorkspace: React.FC<TranslationWorkspaceProps> = ({ apiK
   const [isLoading, setIsLoading] = useState(false);
   const [activeBottomTab, setActiveBottomTab] = useState('vocabulary');
   const [isListening, setIsListening] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleTranslate = async () => {
     if (!sourceText.trim()) return;
     setIsLoading(true);
+    setErrorMsg(null);
     try {
       const transResult = await api.translate(sourceText, direction, mode, provider, apiKey, provider === 'gemini' ? geminiModel : undefined);
       setResult(transResult);
     } catch (err: any) {
-      alert(`번역 오류: ${err.message}`);
+      setErrorMsg(err.message || '번역 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -221,6 +223,22 @@ export const TranslationWorkspace: React.FC<TranslationWorkspaceProps> = ({ apiK
             )}
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
+            {errorMsg && (
+              <div style={{
+                background: 'rgba(220,50,50,0.12)',
+                border: '1px solid rgba(220,50,50,0.4)',
+                borderRadius: '10px',
+                padding: '14px 18px',
+                marginBottom: '12px',
+                color: '#ff8080',
+                whiteSpace: 'pre-line',
+                fontSize: '0.88rem',
+                lineHeight: '1.6'
+              }}>
+                <strong style={{ display: 'block', marginBottom: '6px' }}>⚠ 번역 오류</strong>
+                {errorMsg}
+              </div>
+            )}
             {isLoading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '15px' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '4px solid var(--border-indigo)', borderTopColor: 'var(--color-gold)', animation: 'spin 1s linear infinite' }} />

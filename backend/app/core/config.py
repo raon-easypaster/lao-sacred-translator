@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     DEFAULT_LLM_PROVIDER: str = os.getenv("DEFAULT_LLM_PROVIDER", "gemini") # gemini, openai, claude
     DEFAULT_GEMINI_MODEL: str = "gemini-2.5-flash"
     DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
-    DEFAULT_CLAUDE_MODEL: str = "claude-3-5-haiku"
+    DEFAULT_CLAUDE_MODEL: str = "claude-haiku-4-5-20251001"
     
     # Embeddings config
     EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "local") # local (TF-IDF), gemini, openai
