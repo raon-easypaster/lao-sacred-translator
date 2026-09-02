@@ -191,7 +191,7 @@ class TranslationEngine:
         prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
         
         payload = {
-            "model": model or "claude-3-5-haiku-20241022",
+            "model": model or settings.DEFAULT_CLAUDE_MODEL,
             "max_tokens": 2048,
             "system": "You are a professional Lao religious translator, theologian, and linguist. Return a JSON object ONLY.",
             "messages": [
