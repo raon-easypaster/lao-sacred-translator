@@ -1,7 +1,10 @@
 import json
+import os
 import time
 import requests
 from sqlalchemy.orm import Session
+
+_GEM_TOKEN_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "gemini_token.json"))
 from app.models.schemas import Glossary, TranslationMemory
 from app.services.rag_engine import RAGEngine
 from app.core.config import settings
@@ -98,7 +101,88 @@ class TranslationEngine:
  
  
     @staticmethod
+    def _translate_gemini_subscription(text: str, direction: str, mode: str, glossary: str, rag: str, token_data: dict) -> dict:
+        """Google 구독 계정(Gemini Advanced 등)으로 번역 — API 키 불필요."""
+        _OAUTH_CLIENT_ID     = settings.GEMINI_OAUTH_CLIENT_ID
+        _OAUTH_CLIENT_SECRET = settings.GEMINI_OAUTH_CLIENT_SECRET
+
+        # 토큰 갱신
+        if token_data.get("expires_at", 0) <= time.time() + 60:
+            try:
+                r = requests.post("https://oauth2.googleapis.com/token", data={
+                    "client_id": _OAUTH_CLIENT_ID,
+                    "client_secret": _OAUTH_CLIENT_SECRET,
+                    "refresh_token": token_data.get("refresh_token", ""),
+                    "grant_type": "refresh_token"
+                }, timeout=10)
+                if r.status_code == 200:
+                    j = r.json()
+                    token_data["access_token"] = j["access_token"]
+                    token_data["expires_at"] = time.time() + j.get("expires_in", 3600)
+                    with open(_GEM_TOKEN_PATH, "w") as f:
+                        json.dump(token_data, f, indent=2)
+            except Exception:
+                pass
+
+        access_token = token_data["access_token"]
+        project = token_data.get("project", "")
+        prompt = TranslationEngine._build_system_prompt(text, direction, mode, glossary, rag)
+        hdrs = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+            "User-Agent": "google-api-nodejs-client/9.15.1",
+            "X-Goog-Api-Client": "gl-node/22.17.0",
+            "Client-Metadata": "ideType=IDE_UNSPECIFIED,platform=PLATFORM_UNSPECIFIED,pluginType=GEMINI"
+        }
+        payload = {
+            "project": project,
+            "model": "models/gemini-2.5-flash",
+            "request": {
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "systemInstruction": {
+                    "parts": [{"text": "You are a professional Lao religious translator, theologian, and linguist. Return a JSON object ONLY. No markdown, no explanation."}]
+                },
+                "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.2}
+            }
+        }
+        try:
+            response = requests.post(
+                "https://cloudcode-pa.googleapis.com/v1internal:generateContent",
+                headers=hdrs, json=payload, timeout=90, verify=False
+            )
+            if response.status_code == 200:
+                res_data = response.json()
+                response_obj = res_data.get("response", res_data)
+                candidates = response_obj.get("candidates", [])
+                if not candidates:
+                    return {"error": "Gemini 구독 API: 응답 없음", "translation": text}
+                parts = candidates[0].get("content", {}).get("parts", [])
+                content = "".join(p.get("text", "") for p in parts).strip()
+                if "```json" in content:
+                    content = content.split("```json")[1].split("```")[0].strip()
+                elif "```" in content:
+                    content = content.split("```")[1].split("```")[0].strip()
+                try:
+                    return json.loads(content)
+                except json.JSONDecodeError:
+                    return {"error": f"Gemini 구독 응답 파싱 실패: {content[:200]}", "translation": text}
+            else:
+                return {"error": f"Gemini 구독 API 오류 ({response.status_code}): {response.text[:300]}", "translation": text}
+        except Exception as e:
+            return {"error": f"Gemini 구독 API 예외: {str(e)}", "translation": text}
+
+    @staticmethod
     def _translate_gemini(text: str, direction: str, mode: str, glossary: str, rag: str, key: str, model: str = None) -> dict:
+        # API 키 없이 Google 구독 토큰이 있으면 구독 경로 사용
+        if not key and os.path.exists(_GEM_TOKEN_PATH):
+            try:
+                with open(_GEM_TOKEN_PATH) as f:
+                    token_data = json.load(f)
+                if token_data.get("access_token") and token_data.get("project"):
+                    return TranslationEngine._translate_gemini_subscription(text, direction, mode, glossary, rag, token_data)
+            except Exception:
+                pass
+
         # Use gemini-3.6-flash as default, which is the 2026 GA stable model
         model_name = model or "gemini-3.6-flash"
         if model_name.startswith("models/"):

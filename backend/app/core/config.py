@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     # Embeddings config
     EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "local") # local (TF-IDF), gemini, openai
 
+    # Google OAuth (Gemini 구독 연동) — backend/.env 에서 로드
+    GEMINI_OAUTH_CLIENT_ID: str = os.getenv("GEMINI_OAUTH_CLIENT_ID", "")
+    GEMINI_OAUTH_CLIENT_SECRET: str = os.getenv("GEMINI_OAUTH_CLIENT_SECRET", "")
+
     class Config:
         env_file = ".env"
         extra = "ignore"

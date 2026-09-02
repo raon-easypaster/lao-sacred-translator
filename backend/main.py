@@ -2,8 +2,17 @@ import os
 import json
 import uuid
 import shutil
+import time
+import secrets
+import hashlib
+import base64
+import threading
+import functools
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs, urlencode
 from typing import List, Optional
 from datetime import datetime
+import requests as _requests
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
@@ -37,6 +46,107 @@ UPLOAD_DIR = "./uploads"
 EXPORT_DIR = "./exports"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(EXPORT_DIR, exist_ok=True)
+
+# ── Google OAuth (Gemini 구독 연동) ──────────────────────────────────────────
+_BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+GEMINI_TOKEN_PATH = os.path.join(_BACKEND_DIR, "gemini_token.json")
+_OAUTH_CLIENT_ID     = settings.GEMINI_OAUTH_CLIENT_ID
+_OAUTH_CLIENT_SECRET = settings.GEMINI_OAUTH_CLIENT_SECRET
+_OAUTH_REDIRECT_URI  = "http://localhost:8085/oauth2callback"
+_OAUTH_SCOPES = "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email openid"
+_oauth_session: dict = {}
+
+def _pkce():
+    v = secrets.token_urlsafe(64)
+    c = base64.urlsafe_b64encode(hashlib.sha256(v.encode()).digest()).rstrip(b"=").decode()
+    return v, c
+
+def _load_gem_token():
+    if os.path.exists(GEMINI_TOKEN_PATH):
+        try:
+            with open(GEMINI_TOKEN_PATH) as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return None
+
+def _save_gem_token(data: dict):
+    with open(GEMINI_TOKEN_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+def _refresh_gem_token(data: dict) -> dict:
+    if data.get("expires_at", 0) > time.time() + 60:
+        return data
+    r = _requests.post("https://oauth2.googleapis.com/token", data={
+        "client_id": _OAUTH_CLIENT_ID,
+        "client_secret": _OAUTH_CLIENT_SECRET,
+        "refresh_token": data.get("refresh_token", ""),
+        "grant_type": "refresh_token"
+    }, timeout=10)
+    if r.status_code == 200:
+        j = r.json()
+        data["access_token"] = j["access_token"]
+        data["expires_at"] = time.time() + j.get("expires_in", 3600)
+        _save_gem_token(data)
+    return data
+
+def _ensure_gem_project(access_token: str) -> str:
+    hdrs = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+        "User-Agent": "google-api-nodejs-client/9.15.1",
+        "X-Goog-Api-Client": "gl-node/22.17.0",
+        "Client-Metadata": "ideType=IDE_UNSPECIFIED,platform=PLATFORM_UNSPECIFIED,pluginType=GEMINI"
+    }
+    body = {"metadata": {"ideType": "IDE_UNSPECIFIED", "platform": "PLATFORM_UNSPECIFIED", "pluginType": "GEMINI"}}
+    try:
+        r = _requests.post("https://cloudcode-pa.googleapis.com/v1internal:loadCodeAssist",
+                           headers=hdrs, json=body, timeout=15, verify=False)
+        if r.status_code == 200:
+            d = r.json()
+            project = d.get("cloudaicompanionProject", "")
+            if project:
+                return project
+            tiers = d.get("allowedTiers", [])
+            tier_id = "FREE"
+            for t in tiers:
+                if t.get("isDefault"):
+                    tier_id = t.get("id", "FREE")
+                    break
+            for _ in range(5):
+                r2 = _requests.post("https://cloudcode-pa.googleapis.com/v1internal:onboardUser",
+                                    headers=hdrs,
+                                    json={"tierId": tier_id, "metadata": body["metadata"]},
+                                    timeout=15, verify=False)
+                if r2.status_code == 200:
+                    p = r2.json().get("response", {}).get("cloudaicompanionProject", {}).get("id", "")
+                    if r2.json().get("done") and p:
+                        return p
+                time.sleep(2)
+    except Exception as e:
+        print(f"[OAuth] ensure_project error: {e}")
+    return ""
+
+class _OAuthHandler(BaseHTTPRequestHandler):
+    def __init__(self, callback, *args, **kwargs):
+        self.callback = callback
+        super().__init__(*args, **kwargs)
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        if parsed.path == "/oauth2callback":
+            params = parse_qs(parsed.query)
+            code = params.get("code", [None])[0]
+            state = params.get("state", [None])[0]
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            html = ("<!DOCTYPE html><html><body style='font-family:sans-serif;text-align:center;padding:60px'>"
+                    "<h2>✅ Google 계정 연결 완료</h2><p>이 창을 닫아도 됩니다.</p></body></html>")
+            self.wfile.write(html.encode("utf-8"))
+            if code:
+                threading.Thread(target=self.callback, args=(code, state), daemon=True).start()
+    def log_message(self, *args):
+        pass
 
 # Helper function to seed glossary if empty
 def seed_database_if_empty():
@@ -676,6 +786,107 @@ def export_translation(data: dict, format: str = Query("markdown")):
             
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported format: {format}. Supported: markdown, html, docx")
+
+# ── OAuth 라우트 ─────────────────────────────────────────────────────────────
+
+@app.get("/oauth/start")
+def oauth_start():
+    global _oauth_session
+    verifier, challenge = _pkce()
+    state = secrets.token_urlsafe(16)
+
+    # 이전 콜백 서버가 남아 있으면 닫기
+    if "server" in _oauth_session:
+        try:
+            _oauth_session["server"].server_close()
+        except Exception:
+            pass
+
+    _oauth_session = {"verifier": verifier, "state": state, "status": "pending"}
+
+    def on_code(code: str, recv_state: str):
+        global _oauth_session
+        if recv_state != _oauth_session.get("state"):
+            _oauth_session["status"] = "error"
+            return
+        try:
+            r = _requests.post("https://oauth2.googleapis.com/token", data={
+                "client_id": _OAUTH_CLIENT_ID,
+                "client_secret": _OAUTH_CLIENT_SECRET,
+                "code": code,
+                "redirect_uri": _OAUTH_REDIRECT_URI,
+                "grant_type": "authorization_code",
+                "code_verifier": _oauth_session["verifier"]
+            }, timeout=15)
+            if r.status_code != 200:
+                _oauth_session["status"] = "error"
+                return
+            j = r.json()
+            access_token = j["access_token"]
+            user = _requests.get("https://www.googleapis.com/oauth2/v1/userinfo",
+                                 headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
+            email = user.json().get("email", "") if user.status_code == 200 else ""
+            token_data = {
+                "access_token": access_token,
+                "refresh_token": j.get("refresh_token", ""),
+                "expires_at": time.time() + j.get("expires_in", 3600),
+                "email": email,
+                "project": ""
+            }
+            _save_gem_token(token_data)
+            project = _ensure_gem_project(access_token)
+            if project:
+                token_data["project"] = project
+                _save_gem_token(token_data)
+            _oauth_session["status"] = "done"
+            _oauth_session["email"] = email
+        except Exception as e:
+            print(f"[OAuth] token exchange error: {e}")
+            _oauth_session["status"] = "error"
+
+    def run_server():
+        handler = functools.partial(_OAuthHandler, on_code)
+        try:
+            server = HTTPServer(("127.0.0.1", 8085), handler)
+            _oauth_session["server"] = server
+            server.timeout = 300
+            server.handle_request()
+        except Exception as e:
+            print(f"[OAuth] callback server error: {e}")
+
+    threading.Thread(target=run_server, daemon=True).start()
+
+    params = {
+        "client_id": _OAUTH_CLIENT_ID,
+        "redirect_uri": _OAUTH_REDIRECT_URI,
+        "response_type": "code",
+        "scope": _OAUTH_SCOPES,
+        "state": state,
+        "access_type": "offline",
+        "prompt": "consent",
+        "code_challenge": challenge,
+        "code_challenge_method": "S256"
+    }
+    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
+    return {"url": auth_url}
+
+@app.get("/oauth/status")
+def oauth_status():
+    token = _load_gem_token()
+    if token:
+        try:
+            token = _refresh_gem_token(token)
+            return {"authenticated": True, "email": token.get("email", ""), "project": token.get("project", "")}
+        except Exception:
+            pass
+    return {"authenticated": False, "email": "", "project": ""}
+
+@app.delete("/oauth/disconnect")
+def oauth_disconnect():
+    if os.path.exists(GEMINI_TOKEN_PATH):
+        os.remove(GEMINI_TOKEN_PATH)
+    return {"message": "Google 계정 연결이 해제되었습니다."}
+
 
 if __name__ == "__main__":
     import uvicorn
