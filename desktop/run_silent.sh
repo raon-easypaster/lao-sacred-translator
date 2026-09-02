@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT_ROOT="/Users/galeb76/.gemini/antigravity/scratch/lao-sacred-translator"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Terminate dangling backend instance on port 8000 to avoid startup locks
 if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null ; then
