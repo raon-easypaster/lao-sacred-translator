@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -36,7 +36,8 @@ function createWindow() {
     backgroundColor: '#0b0f19', // Matches mid-navy layout
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
@@ -51,6 +52,11 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
+// 시스템 기본 브라우저(Chrome 등)로 URL 열기
+ipcMain.handle('open-external', (_event, url) => {
+  shell.openExternal(url);
+});
 
 app.on('ready', () => {
   startBackend();
